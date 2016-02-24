@@ -1,2 +1,5 @@
-# Java99
-Java99 problems
+# Java99 Problems done right (With JUnit tests)
+
+## Strings
+
+## Graphs
