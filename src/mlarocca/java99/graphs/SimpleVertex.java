@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-class SimpleVertex<T> implements MutableVertex<T> {
+class SimpleVertex<T> implements MutableVertex<T>, Comparable<SimpleVertex<T>> {
 
   private String label;
   private Optional<T> value;
@@ -76,5 +76,34 @@ class SimpleVertex<T> implements MutableVertex<T> {
   public Object clone() {
     return value.map(v -> new SimpleVertex<T>(label, v, adj))
       .orElse(new SimpleVertex<T>(label, adj));
+  }
+  
+  /**
+   * Two vertices are equals (and hence have the same hashcode) iff they have
+   * the same label AND the same value.
+   */
+  @Override
+  public int hashCode() {
+    List<Object> params = new ArrayList<>();
+    params.add(label);
+    params.add(value);
+    return params.hashCode();
+  }
+  
+  @Override
+  public boolean equals(Object other) {
+    if (other == null || other.getClass() != this.getClass()) {
+      return false;
+    }
+    return this.hashCode() == other.hashCode();
+  }
+  
+  /**
+   * To be consistent with equality method, the order of the vertex will be
+   * determined by the labels' hashcode (otherwise TreeMaps etc... could be inconsistent).
+   */
+  @Override
+  public int compareTo(SimpleVertex<T> other) {
+    return this.hashCode() - other.hashCode();
   }
 }
