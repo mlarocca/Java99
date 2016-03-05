@@ -1,6 +1,6 @@
 package mlarocca.java99.graphs;
 
-public interface Edge<T> extends Cloneable {
+public interface Edge<T> extends Cloneable, Comparable<Edge<T>> {
   public Vertex<T> getSource();
   public Vertex<T> getDestination();
   public double getWeight();

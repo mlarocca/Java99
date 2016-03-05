@@ -3,25 +3,29 @@ package mlarocca.java99.graphs;
 import java.util.ArrayList;
 import java.util.List;
 
-class SimpleEdge<T> implements MutableEdge<T>, Comparable<SimpleEdge<T>>{
+class SimpleEdge<T> implements MutableEdge<T> {
 
   private MutableVertex<T> source;
   private MutableVertex<T> destination;
   private double weight;
   
-  public SimpleEdge(MutableVertex<T> source, MutableVertex<T> destination) {
+  public SimpleEdge(Vertex<T> source, Vertex<T> destination) {
     this(source, destination, 0);
   }
   
-  public SimpleEdge(MutableVertex<T> source, MutableVertex<T> destination, double weight) {
-    if (source == null || destination == null) {
+  public SimpleEdge(Vertex<T> source2, Vertex<T> destination2, double weight) {
+    if (source2 == null || destination2 == null) {
       throw new IllegalArgumentException("Vertices can't be null");
     }
-    this.source = source;
-    this.destination = destination;
+    this.source = new SimpleVertex<T>(source2);
+    this.destination = new SimpleVertex<T>(destination2);
     this.weight = weight;
   }
   
+  public SimpleEdge(Edge<T> e) {
+    this(e.getSource(), e.getDestination(), e.getWeight());
+  }
+ 
   @Override
   public double getWeight() {
     return weight;
@@ -66,7 +70,7 @@ class SimpleEdge<T> implements MutableEdge<T>, Comparable<SimpleEdge<T>>{
    * (otherwise TreeMaps, TreeSets etc... could provide unexpected results).
    */
   @Override
-  public int compareTo(SimpleEdge<T> other) {
+  public int compareTo(Edge<T> other) {
     return this.hashCode() - other.hashCode();
   }
 

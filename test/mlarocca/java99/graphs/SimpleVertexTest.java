@@ -39,12 +39,6 @@ public class SimpleVertexTest {
    assertEquals(Optional.empty(), v.getValue());
    assertEquals(Optional.of(v1Value), v1.getValue());
   }
-
-  @Test
-  public void testAdj() {
-    assertEquals(new ArrayList<>(), v1.getAdjList());
-    //TODO
-  }
   
   @Test
   public void testEquality() {
