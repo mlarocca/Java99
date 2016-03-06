@@ -313,17 +313,14 @@ public class SimpleGraphTest {
   
   @Test
   public void testDfsFromVertexToTargetCycle() {
-    Map<Vertex<Integer>, Integer> exitTimes = cycleGraph.dfs(u);
-    assertEquals((Integer)1, exitTimes.get(z));
-    assertEquals((Integer)2, exitTimes.get(w));
-    assertEquals((Integer)3, exitTimes.get(v));
-    assertEquals((Integer)4, exitTimes.get(u));
-    
-    exitTimes = cycleGraph.dfs(v);
-    assertEquals((Integer)1, exitTimes.get(u));
-    assertEquals((Integer)2, exitTimes.get(z));
-    assertEquals((Integer)3, exitTimes.get(w));
-    assertEquals((Integer)4, exitTimes.get(v));   
+    List<Vertex<Integer>> path = cycleGraph.dfs(u, z);
+    assertEquals(Arrays.asList(u, v, w, z), path);  
+
+    path = cycleGraph.dfs(v, u);
+    assertEquals(Arrays.asList(v, w, z, u), path);  
+ 
+    path = cycleGraph.dfs(w, u);
+    assertEquals(Arrays.asList(w, z, u), path);  
   }
   
   @Test(expected = IllegalArgumentException.class)
