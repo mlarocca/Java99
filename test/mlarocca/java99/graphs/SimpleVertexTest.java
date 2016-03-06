@@ -2,7 +2,6 @@ package mlarocca.java99.graphs;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.junit.BeforeClass;

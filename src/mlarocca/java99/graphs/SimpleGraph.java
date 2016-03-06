@@ -2,18 +2,24 @@ package mlarocca.java99.graphs;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import mlarocca.java99.graphs.data.MinDistanceResult;
 
 public class SimpleGraph<T> implements Graph<T> {
 
@@ -175,18 +181,6 @@ public class SimpleGraph<T> implements Graph<T> {
   }
 
   @Override
-  public Map<String, ?> bfs(Vertex<T> source) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public List<Vertex<T>> bfs(Vertex<T> source, Vertex<T> target) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public Map<Vertex<T>, Integer> dfs() {
     Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
     Map<Vertex<T>, Integer> exitTimes = new HashMap<>();
@@ -249,21 +243,146 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return path;
   }
+  
+  @Override
+  public MinDistanceResult<T> bfs(Vertex<T> source) {
+    return bfs(source, v -> false);
+  }
 
   @Override
-  public Map<String, ?> dijkstra(Vertex<T> source) {
+  public MinDistanceResult<T> bfs(Vertex<T> source, Vertex<T> target) {
+    if (!hasVertex(target.getLabel())) {
+      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+    }
+    
+    MinDistanceResult<T> result = bfs(source, v -> v.equals(target));
+    return new MinDistanceResult<T>() {
+      List<Vertex<T>> path = buildPath(source, target, result.predecessors());
+      
+      @Override
+      public Map<Vertex<T>, Vertex<T>> predecessors() {
+        return result.predecessors();
+      }
+
+      @Override
+      public Map<Vertex<T>, Double> distances() {
+        return result.distances();
+      }
+
+      @Override
+      public List<Vertex<T>> path() {
+        return path;
+      }
+    };
+  }
+  
+  protected List<Vertex<T>> buildPath(
+      Vertex<T> source,
+      Vertex<T> target,
+      Map<Vertex<T>, Vertex<T>> predecessors) {
+    List<Vertex<T>> result = new ArrayList<Vertex<T>>(predecessors.size());    
+    Vertex<T> current = target;
+    while (current != null && !source.equals(current)) {
+      result.add(current);
+      current = predecessors.get(current);
+    }
+    if (source.equals(current)) {
+      result.add(source);
+      Collections.reverse(result);
+    } else {
+      result = null;
+    }
+    return result;
+  }
+  
+  protected MinDistanceResult<T> bfs(Vertex<T> source, Predicate<Vertex<T>> goalFound) {
+    if (!hasVertex(source.getLabel())) {
+      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+    }
+    int n = this.getVertices().size();
+    Map<Vertex<T>, Vertex<T>> predecessors = new HashMap<>(n);
+    Set<Vertex<T>> visited = new HashSet<>(n);
+    Map<Vertex<T>, Double> distances = new HashMap<>(n);
+    Queue<Vertex<T>> queue = initMinDistanceUtilities(n, source, predecessors, visited, distances);
+    
+    while (!queue.isEmpty()) {
+      Vertex<T> v = queue.remove();
+      visited.add(v);
+      if (goalFound.test(v)) {
+        break;
+      }
+      //Invariant: v is contained in distances at this point
+      double dV = distances.get(v);
+      for (Vertex<T> u: getNeighbours(v)) {
+        if (!visited.contains(u)) {
+          double dU = dV + 1;
+          if (distances.getOrDefault(u, Double.POSITIVE_INFINITY) > dU) {
+            distances.put(u,  dU);
+            predecessors.put(u, v);
+            queue.remove(u);
+            queue.add(u);
+            
+          }
+        }
+      }
+    }
+    return new MinDistanceResult<T>() {
+      @Override
+      public Map<Vertex<T>, Vertex<T>> predecessors() {
+        return predecessors;
+      }
+
+      @Override
+      public Map<Vertex<T>, Double> distances() {
+        return distances;
+      }
+
+      @Override
+      public List<Vertex<T>> path() {
+        return null;
+      }
+    };
+  }
+  
+  private Queue<Vertex<T>> initMinDistanceUtilities(
+      int n,
+      Vertex<T> source,
+      Map<Vertex<T>, Vertex<T>> predecessors,
+      Set<Vertex<T>> visited,
+      Map<Vertex<T>, Double> distances) {
+    predecessors.clear();
+    predecessors.put(source, null);
+    visited.clear();
+    distances.clear();
+    distances.put(source, 0.0);
+    //Use closures to provide an order for the priority queue
+    Comparator<Vertex<T>> vertexOrder = new Comparator<Vertex<T>>() {
+      @Override
+      public int compare(Vertex<T> o1, Vertex<T> o2) {
+        Double d1 = distances.getOrDefault(o1, Double.POSITIVE_INFINITY);
+        Double d2 = distances.getOrDefault(o2, Double.POSITIVE_INFINITY);
+        return d1.compareTo(d2);
+      }
+    };
+    Queue<Vertex<T>> queue = new PriorityQueue<>(vertexOrder);
+    queue.add(source);
+    return queue;
+  }
+
+  @Override
+  public MinDistanceResult<T> dijkstra(Vertex<T> source) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public List<Vertex<T>> dijkstra(Vertex<T> source, Vertex<T> target) {
+  public MinDistanceResult<T> dijkstra(Vertex<T> source, Vertex<T> target) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public List<Vertex<T>> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) {
+  public MinDistanceResult<T> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) {
     // TODO Auto-generated method stub
     return null;
   }

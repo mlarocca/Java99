@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import mlarocca.java99.graphs.data.MinDistanceResult;
+
 public class SimpleGraphTest {
   private static final String vLabel = "v";
   private static final String wLabel = "w";
@@ -342,5 +344,140 @@ public class SimpleGraphTest {
   @Test(expected = NullPointerException.class)
   public void testDfsFromVertexToNullTarget() {
     cycleGraph.dfs(u, null);
-  }  
+  }
+  
+
+  @Test
+  public void testBfsFromVertex() {
+    MinDistanceResult<String> result = connectedGraph1.bfs(c);
+    
+    assertEquals((Double)0.0, result.distances().get(c));  
+    assertEquals((Double)1.0, result.distances().get(a));  
+    assertEquals((Double)1.0, result.distances().get(b));  
+    assertEquals((Double)1.0, result.distances().get(d));  
+    assertEquals((Double)1.0, result.distances().get(h));  
+    assertEquals((Double)2.0, result.distances().get(e));  
+    assertEquals((Double)2.0, result.distances().get(f));
+    assertEquals((Double)2.0, result.distances().get(i));
+    
+    assertEquals(null, result.predecessors().get(c));  
+    assertEquals(c, result.predecessors().get(a));  
+    assertEquals(c, result.predecessors().get(b));  
+    assertEquals(c, result.predecessors().get(d));  
+    assertEquals(c, result.predecessors().get(h));  
+    assertEquals(d, result.predecessors().get(e));  
+    assertEquals(d, result.predecessors().get(f));
+    assertEquals(h, result.predecessors().get(i));
+    
+    result = connectedGraph1.bfs(a);
+    assertEquals((Double)0.0, result.distances().get(a));  
+    assertEquals(null, result.distances().get(b));  
+    assertEquals(null, result.distances().get(d));  
+    assertEquals(null, result.distances().get(h));  
+    assertEquals(null, result.distances().get(e));  
+    assertEquals(null, result.distances().get(f));
+    assertEquals(null, result.distances().get(i));
+    
+    assertEquals(null, result.predecessors().get(c));  
+    assertEquals(null, result.predecessors().get(a));  
+    assertEquals(null, result.predecessors().get(b));  
+    assertEquals(null, result.predecessors().get(d));  
+    assertEquals(null, result.predecessors().get(h));  
+    assertEquals(null, result.predecessors().get(e));  
+    assertEquals(null, result.predecessors().get(f));
+    assertEquals(null, result.predecessors().get(i));
+  }
+  
+  @Test
+  public void testBfsFromVertexCycle() {
+    MinDistanceResult<Integer> result = cycleGraph.bfs(u);
+    
+    assertEquals((Double)1.0, result.distances().get(v));  
+    assertEquals((Double)2.0, result.distances().get(w));  
+    assertEquals((Double)3.0, result.distances().get(z));
+    
+    assertEquals(null, result.predecessors().get(u));  
+    assertEquals(u, result.predecessors().get(v));  
+    assertEquals(v, result.predecessors().get(w));  
+    assertEquals(w, result.predecessors().get(z));  
+    
+    assertEquals(null, result.path());  
+
+    result = cycleGraph.bfs(v);
+    
+    assertEquals((Double)1.0, result.distances().get(w));  
+    assertEquals((Double)2.0, result.distances().get(z));  
+    assertEquals((Double)3.0, result.distances().get(u));
+    
+    assertEquals(null, result.predecessors().get(v));  
+    assertEquals(v, result.predecessors().get(w));  
+    assertEquals(w, result.predecessors().get(z));  
+    assertEquals(z, result.predecessors().get(u));
+    
+    assertEquals(null, result.path());
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testBfsFromInvalidVertex() {
+    cycleGraph.bfs(new SimpleVertex<>("banana"));
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testBfsFromNullVertex() {
+    cycleGraph.bfs(null);
+  }
+  
+  @Test
+  public void testBfsFromVertexToTarget() {
+    MinDistanceResult<String> result = connectedGraph1.bfs(c, e);
+    assertEquals((Double)2.0, result.distances().get(e));  
+    assertEquals(Arrays.asList(c, d, e), result.path());  
+  }
+  
+  @Test
+  public void testBfsFromVertexToTargetCycle() {
+    MinDistanceResult<Integer> result = cycleGraph.bfs(u, z);
+
+    assertEquals((Double)1.0, result.distances().get(v));  
+    assertEquals((Double)2.0, result.distances().get(w));  
+    assertEquals((Double)3.0, result.distances().get(z));
+    
+    assertEquals(null, result.predecessors().get(u));  
+    assertEquals(u, result.predecessors().get(v));  
+    assertEquals(v, result.predecessors().get(w));  
+    assertEquals(w, result.predecessors().get(z));  
+    
+    assertEquals(Arrays.asList(u, v, w, z), result.path());  
+
+    result = cycleGraph.bfs(v, z);
+    
+    assertEquals((Double)1.0, result.distances().get(w));  
+    assertEquals((Double)2.0, result.distances().get(z));  
+    
+    assertEquals(null, result.predecessors().get(v));  
+    assertEquals(v, result.predecessors().get(w));  
+    assertEquals(w, result.predecessors().get(z));  
+    
+    assertEquals(Arrays.asList(v, w, z), result.path());  
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testBfsFromInvalidVertexToTarget() {
+    cycleGraph.bfs(new SimpleVertex<>("banana"), v);
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testBfsFromNullVertexToTarget() {
+    cycleGraph.bfs(null, v);
+  } 
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testBfsFromVertexToInvalidTarget() {
+    cycleGraph.bfs(u, new SimpleVertex<>("banana"));
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testBfsFromVertexToNullTarget() {
+    cycleGraph.bfs(u, null);
+  }
 }

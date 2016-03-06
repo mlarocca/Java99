@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import mlarocca.java99.graphs.data.MinDistanceResult;
+
 public interface Graph<T> {
 
   public List<Vertex<T>> getVertices();
@@ -23,14 +25,15 @@ public interface Graph<T> {
   public Edge<T> addEdge(Edge<T> e) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination, double weight) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination) throws IllegalArgumentException;  
-
-  public Map<String, ?> bfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
-  public List<Vertex<T>> bfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+ 
   public Map<Vertex<T>, Integer> dfs();
   public Map<Vertex<T>, Integer> dfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
   public List<Vertex<T>> dfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
-  public Map<String, ?> dijkstra(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
-  public List<Vertex<T>> dijkstra(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
-  public List<Vertex<T>> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) throws NullPointerException, IllegalArgumentException;
+
+  public MinDistanceResult<T> bfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
+  public MinDistanceResult<T> bfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+  public MinDistanceResult<T> dijkstra(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
+  public MinDistanceResult<T> dijkstra(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+  public MinDistanceResult<T> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) throws NullPointerException, IllegalArgumentException;
   
 }
