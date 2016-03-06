@@ -74,4 +74,8 @@ class SimpleEdge<T> implements MutableEdge<T> {
     return this.hashCode() - other.hashCode();
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s -> %s [%s]", getSource(), getDestination(), getWeight());
+  }
 }

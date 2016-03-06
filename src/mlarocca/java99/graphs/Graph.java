@@ -1,7 +1,9 @@
 package mlarocca.java99.graphs;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 public interface Graph<T> {
 
@@ -12,16 +14,23 @@ public interface Graph<T> {
   public Vertex<T> addVertex(String label, T value) throws IllegalArgumentException;
 
   public Optional<Vertex<T>> getVertex(String label);
+  public boolean hasVertex(String label);
 
-  public List<Vertex<? extends T>> getNeighbours(Vertex<T> v);
-  public List<Edge<T>> getAdjList(Vertex<T> v);
+  public List<Vertex<T>> getNeighbours(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
+  public List<Edge<T>> getAdjList(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
+  public List<Edge<T>> getEdgesTo(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
 
   public Edge<T> addEdge(Edge<T> e) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination, double weight) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination) throws IllegalArgumentException;  
 
-  public List<Vertex<T>> bfs(Vertex<T> source);
-  public List<Vertex<T>> dfs(Vertex<T> source);
-  public List<Vertex<T>> dfs();
+  public Map<String, ?> bfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
+  public List<Vertex<T>> bfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+  public Map<Vertex<T>, Integer> dfs();
+  public Map<Vertex<T>, Integer> dfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
+  public List<Vertex<T>> dfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+  public Map<String, ?> dijkstra(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
+  public List<Vertex<T>> dijkstra(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+  public List<Vertex<T>> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) throws NullPointerException, IllegalArgumentException;
   
 }

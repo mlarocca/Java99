@@ -70,4 +70,9 @@ class SimpleVertex<T> implements MutableVertex<T> {
     this.value = Optional.of(newValue);
     return updated;
   }
+  
+  @Override
+  public String toString() {
+    return String.format("%s{%s}", getLabel(), getValue().map(v -> v.toString()).orElse(""));
+  }
 }

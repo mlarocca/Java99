@@ -2,10 +2,16 @@ package mlarocca.java99.graphs;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -74,6 +80,11 @@ public class SimpleGraph<T> implements Graph<T> {
     Vertex<T> v = labelToVertex.get(label);
     return v == null ? Optional.empty() : Optional.of(v);
   }
+  
+  @Override
+  public boolean hasVertex(String label) {
+    return labelToVertex.containsKey(label);
+  }
 
   @Override
   public synchronized Edge<T> addEdge(Edge<T> e) throws NullPointerException, IllegalArgumentException {
@@ -138,7 +149,7 @@ public class SimpleGraph<T> implements Graph<T> {
   }
   
   @Override
-  public List<Vertex<? extends T>> getNeighbours(Vertex<T> v) throws IllegalArgumentException {
+  public List<Vertex<T>> getNeighbours(Vertex<T> v) throws IllegalArgumentException {
     return getAdjList(v)
       .parallelStream()
       .map(e -> e.getDestination())
@@ -152,21 +163,107 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return adjList.get(v);
   }
+
+  @Override
+  public List<Edge<T>> getEdgesTo(Vertex<T> v) throws IllegalArgumentException {
+    List<Edge<T>> edgesToV = getEdges()
+      .stream()
+      .filter(e -> e.getDestination().equals(v))
+      .collect(Collectors.toList());
+    Collections.sort(edgesToV);
+    return edgesToV;
+  }
+
+  @Override
+  public Map<String, ?> bfs(Vertex<T> source) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<Vertex<T>> bfs(Vertex<T> source, Vertex<T> target) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Map<Vertex<T>, Integer> dfs() {
+    Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
+    Map<Vertex<T>, Integer> exitTimes = new HashMap<>();
+    int time = 0;
+    for (Vertex<T> v: getVertices()) {
+      if (!entryTimes.containsKey(v)) {
+        entryTimes.put(v, time);
+        time = 1 + dfs(v, entryTimes, exitTimes);
+      }
+    }
+    return exitTimes;
+  }
+
+  @Override
+  public Map<Vertex<T>, Integer> dfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException {
+    Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
+    Map<Vertex<T>, Integer> exitTimes = new HashMap<>();
+    entryTimes.put(source,  0);
+    dfs(source, entryTimes, exitTimes);
+    return exitTimes;
+  }
+  
+  protected int dfs(Vertex<T> u, Map<Vertex<T>, Integer> entryTimes, Map<Vertex<T>, Integer> exitTimes) {
+    int time = entryTimes.get(u);
+    
+    for (Vertex<T> v: getNeighbours(u)) {
+      if (!entryTimes.containsKey(v)) {
+        entryTimes.put(v, time);
+        time = dfs(v, entryTimes, exitTimes);        
+      }
+    }
+    exitTimes.put(u, time + 1);
+    return time + 1;
+  }
   
   @Override
-  public List<Vertex<T>> bfs(Vertex<T> source) {
+  public List<Vertex<T>> dfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException {
+    if (!hasVertex(target.getLabel())) {
+      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+    }
+    return dfs(source, target, new HashSet<>());
+  }
+
+  protected List<Vertex<T>> dfs(Vertex<T> source, Vertex<T> target, Set<Vertex<T>> visited) {  
+    List<Vertex<T>> path = null;
+    visited.add(source);
+    if (source.equals(target)) {
+      path = new LinkedList<>();
+      path.add(source);
+    } else {
+      for (Vertex<T> v: getNeighbours(source)) {
+        if (!visited.contains(v)) {
+          path = dfs(v, target, visited);
+          if (path != null) {
+            path.add(0, source);
+            break;
+          }
+        }
+      }      
+    }
+    return path;
+  }
+
+  @Override
+  public Map<String, ?> dijkstra(Vertex<T> source) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public List<Vertex<T>> dfs(Vertex<T> source) {
+  public List<Vertex<T>> dijkstra(Vertex<T> source, Vertex<T> target) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public List<Vertex<T>> dfs() {
+  public List<Vertex<T>> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) {
     // TODO Auto-generated method stub
     return null;
   }
