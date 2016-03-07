@@ -179,7 +179,12 @@ public class SimpleGraph<T> implements Graph<T> {
     Collections.sort(edgesToV);
     return edgesToV;
   }
-
+  /**
+   * 
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */
   @Override
   public Map<Vertex<T>, Integer> dfs() {
     Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
@@ -193,7 +198,14 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return exitTimes;
   }
-
+  
+  /**
+   * 
+   * @param source
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */
   @Override
   public Map<Vertex<T>, Integer> dfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException {
     Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
@@ -216,6 +228,14 @@ public class SimpleGraph<T> implements Graph<T> {
     return time + 1;
   }
   
+  /**
+   * 
+   * @param source
+   * @param target
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */
   @Override
   public List<Vertex<T>> dfs(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException {
     if (!hasVertex(target.getLabel())) {
@@ -328,7 +348,7 @@ public class SimpleGraph<T> implements Graph<T> {
       Function<Edge<T>, Double> distance, 
       Function<Vertex<T>, Double> heuristic) {
     if (!hasVertex(source.getLabel())) {
-      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+      throw new IllegalArgumentException("Source vertex doesn't belong to the graph");
     }
     
     int n = this.getVertices().size();
@@ -460,6 +480,33 @@ public class SimpleGraph<T> implements Graph<T> {
       Collections.reverse(result);
     } else {
       result = null;
+    }
+    return result;
+  }
+
+  @Override
+  public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target)
+      throws NullPointerException, IllegalArgumentException {
+    return allAcyclicPaths(source, target, new ArrayList<>());
+  }
+
+  protected Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target, List<Vertex<T>> path) {  
+    Set<List<Vertex<T>>> result = new HashSet<>();
+    List<Vertex<T>> newPath = new ArrayList<>(path);
+    newPath.add(source);
+    Set<Vertex<T>> visited = new HashSet<>(newPath);
+    if (!hasVertex(target.getLabel())) {
+      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+    }
+
+    if (source.equals(target)) {
+      result.add(newPath);
+    } else {
+      for (Vertex<T> v: getNeighbours(source)) {
+        if (!visited.contains(v)) {
+          result.addAll(allAcyclicPaths(v, target, newPath));
+        }
+      }      
     }
     return result;
   }

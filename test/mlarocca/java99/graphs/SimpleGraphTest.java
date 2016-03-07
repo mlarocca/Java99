@@ -4,9 +4,11 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -43,9 +45,12 @@ public class SimpleGraphTest {
   private static SimpleEdge<Integer> eWZ;
   private static SimpleEdge<Integer> eZU;
 
+  private static SimpleEdge<String> eAB;
+  private static SimpleEdge<String> eAC;
   private static SimpleEdge<String> eCA;
   private static SimpleEdge<String> eCB;
   private static SimpleEdge<String> eCD;
+  private static SimpleEdge<String> eDD;
   private static SimpleEdge<String> eFC;
   private static SimpleEdge<String> eCH;
   private static SimpleEdge<String> eDE;
@@ -59,6 +64,7 @@ public class SimpleGraphTest {
   private static Graph<Integer> pathGraph;
   private static Graph<Integer> cycleGraph;
   private static Graph<String> connectedGraph1;
+  private static Graph<String> connectedGraph2;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -84,9 +90,12 @@ public class SimpleGraphTest {
     eWZ = new SimpleEdge<Integer>(w, z);
     eZU = new SimpleEdge<Integer>(z, u);
 
+    eAB = new SimpleEdge<String>(a, b);
+    eAC = new SimpleEdge<String>(a, c);
     eCA = new SimpleEdge<String>(c, a);
     eCB = new SimpleEdge<String>(c, b);
     eCD = new SimpleEdge<String>(c, d);
+    eDD = new SimpleEdge<String>(d, d);
     eFC = new SimpleEdge<String>(f, c);
     eCH = new SimpleEdge<String>(c, h);
     eDE = new SimpleEdge<String>(d, e);
@@ -136,6 +145,17 @@ public class SimpleGraphTest {
     connectedGraph1.addEdge(eFG);    
     connectedGraph1.addEdge(eGI);    
     connectedGraph1.addEdge(eHI);
+    
+    connectedGraph2 = new SimpleGraph<>();
+    connectedGraph2.addVertex(a.getLabel());
+    connectedGraph2.addVertex(b.getLabel());
+    connectedGraph2.addVertex(c.getLabel());
+    connectedGraph2.addVertex(d.getLabel());
+    
+    connectedGraph2.addEdge(eAB);
+    connectedGraph2.addEdge(eCB);    
+    connectedGraph2.addEdge(eAC);    
+    connectedGraph2.addEdge(eDD);
   }
   
   @Before
@@ -476,5 +496,52 @@ public class SimpleGraphTest {
   @Test(expected = NullPointerException.class)
   public void testBfsFromVertexToNullTarget() {
     cycleGraph.bfs(u, null);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testAllAcyclicPathsFromInvalidVertex() {
+    cycleGraph.allAcyclicPaths(new SimpleVertex<>("banana"), v);
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testAllAcyclicPathsFromNullVertex() {
+    cycleGraph.allAcyclicPaths(null, v);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testAllAcyclicPathsToInvalidVertex() {
+    cycleGraph.allAcyclicPaths(v, new SimpleVertex<>("banana"));
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testAllAcyclicPathsToNullVertex() {
+    cycleGraph.allAcyclicPaths(v, null);
+  }
+  
+  @Test
+  public void testAllAcyclicPaths() {
+    Set<List<Vertex<String>>> expectedResult = new HashSet<>();
+    expectedResult.add(Arrays.asList(a, b));
+    expectedResult.add(Arrays.asList(a, c, b));
+    assertEquals(expectedResult, connectedGraph2.allAcyclicPaths(a, b));  
+
+    expectedResult.clear();
+    expectedResult.add(Arrays.asList(a, c));
+    assertEquals(expectedResult, connectedGraph2.allAcyclicPaths(a, c));  
+
+    Set<List<Vertex<String>>> expectedResultEmpty = new HashSet<>();
+    assertEquals(expectedResultEmpty, connectedGraph2.allAcyclicPaths(a, d));  
+    assertEquals(expectedResultEmpty, connectedGraph2.allAcyclicPaths(b, a));  
+  }
+  
+  @Test
+  public void testAllAcyclicPathsOnACycle() {
+    Set<List<Vertex<Integer>>> expectedResult = new HashSet<>();
+    expectedResult.add(Arrays.asList(u, v, w));
+    assertEquals(expectedResult, cycleGraph.allAcyclicPaths(u, w));  
+
+    expectedResult.clear();
+    expectedResult.add(Arrays.asList(w, z, u));
+    assertEquals(expectedResult, cycleGraph.allAcyclicPaths(w, u));  
   }
 }
