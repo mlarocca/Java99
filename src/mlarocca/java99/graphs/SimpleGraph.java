@@ -244,20 +244,189 @@ public class SimpleGraph<T> implements Graph<T> {
     return path;
   }
   
+  /**
+   * 
+   * @param source
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */  
   @Override
   public MinDistanceResult<T> bfs(Vertex<T> source) {
-    return bfs(source, v -> false);
+    return AStar(source, v -> false, e -> 1.0, v -> 0.0);
   }
-
+  
+  /**
+   * 
+   * @param source
+   * @param target
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */
   @Override
   public MinDistanceResult<T> bfs(Vertex<T> source, Vertex<T> target) {
     if (!hasVertex(target.getLabel())) {
       throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
     }
     
-    MinDistanceResult<T> result = bfs(source, v -> v.equals(target));
+    MinDistanceResult<T> result = AStar(source, v -> v.equals(target), e -> 1.0, v -> 0.0);
+    return addPathToResult(source, target, result);
+  }
+  
+  /**
+   * 
+   * @param source
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */  
+  @Override
+  public MinDistanceResult<T> dijkstra(Vertex<T> source) {
+    return AStar(source, v -> false, e -> e.getWeight(), v -> 0.0);
+  }
+
+  /**
+   * 
+   * @param source
+   * @param target
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */  
+  @Override
+  public MinDistanceResult<T> dijkstra(Vertex<T> source, Vertex<T> target) {
+    MinDistanceResult<T> result = AStar(source, v -> v.equals(target), e -> e.getWeight(), v -> 0.0);
+    return addPathToResult(source, target, result);
+  }
+
+  /**
+   * 
+   * @param source
+   * @param target
+   * @param heuristic
+   * @return
+   * @throws NullPointerException
+   * @throws IllegalArgumentException
+   */
+  @Override
+  public MinDistanceResult<T> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) {
+    MinDistanceResult<T> result = AStar(source, v -> v.equals(target), e -> e.getWeight(), heuristic);
+    return addPathToResult(source, target, result);
+  }
+
+  /**
+   * 
+   * @param source
+   * @param goalFound
+   * @param distance
+   * @param heuristic
+   * @return
+   */
+  protected MinDistanceResult<T> AStar(
+      Vertex<T> source, Predicate<Vertex<T>> goalFound, 
+      Function<Edge<T>, Double> distance, 
+      Function<Vertex<T>, Double> heuristic) {
+    if (!hasVertex(source.getLabel())) {
+      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+    }
+    
+    int n = this.getVertices().size();
+    Map<Vertex<T>, Vertex<T>> predecessors = new HashMap<>(n);
+    Set<Vertex<T>> visited = new HashSet<>(n);
+    Map<Vertex<T>, Double> distances = new HashMap<>(n);
+    Queue<Vertex<T>> queue = initMinDistanceUtilities(n, source, predecessors, visited, distances, heuristic);
+    
+    while (!queue.isEmpty()) {
+      Vertex<T> v = queue.remove();
+      visited.add(v);
+      if (goalFound.test(v)) {
+        break;
+      }
+      //Invariant: v is contained in distances at this point
+      double dV = distances.get(v);
+      for (Edge<T> e: getAdjList(v)) {
+        checkEdgeAndAddNodeToQueue(queue, e, dV, visited, distances, predecessors, distance);
+      }
+    }
+    
+    return wrapMinDistanceResults(predecessors, distances, null);
+  }
+  
+  public void checkEdgeAndAddNodeToQueue(
+      Queue<Vertex<T>> queue,
+      Edge<T> e,
+      Double dV,
+      Set<Vertex<T>> visited,
+      Map<Vertex<T>, Double> distances,
+      Map<Vertex<T>, Vertex<T>> predecessors,
+      Function<Edge<T>, Double> distance) {
+    Vertex<T> u = e.getDestination();
+    Vertex<T> v = e.getSource();
+    if (!visited.contains(u)) {
+      double dU = dV + distance.apply(e);
+      if (distances.getOrDefault(u, Double.POSITIVE_INFINITY) > dU) {
+        distances.put(u,  dU);
+        predecessors.put(u, v);
+        queue.remove(u);
+        queue.add(u);
+      }        
+    }
+  }
+  
+  private Queue<Vertex<T>> initMinDistanceUtilities(
+      int n,
+      Vertex<T> source,
+      Map<Vertex<T>, Vertex<T>> predecessors,
+      Set<Vertex<T>> visited,
+      Map<Vertex<T>, Double> distances,
+      Function<Vertex<T>, Double> heuristic) {
+    predecessors.clear();
+    predecessors.put(source, null);
+    visited.clear();
+    distances.clear();
+    distances.put(source, 0.0);
+    //Use closures to provide an order for the priority queue
+    Comparator<Vertex<T>> vertexOrder = new Comparator<Vertex<T>>() {
+      @Override
+      public int compare(Vertex<T> o1, Vertex<T> o2) {
+        Double d1 = distances.getOrDefault(o1, Double.POSITIVE_INFINITY) + heuristic.apply(o1);
+        Double d2 = distances.getOrDefault(o2, Double.POSITIVE_INFINITY) + heuristic.apply(o2);
+        return d1.compareTo(d2);
+      }
+    };
+    Queue<Vertex<T>> queue = new PriorityQueue<>(vertexOrder);
+    queue.add(source);
+    return queue;
+  }
+  
+  protected MinDistanceResult<T> wrapMinDistanceResults(
+      final Map<Vertex<T>, Vertex<T>> predecessors,
+      final Map<Vertex<T>, Double> distances,
+      final List<Vertex<T>> path) {
     return new MinDistanceResult<T>() {
-      List<Vertex<T>> path = buildPath(source, target, result.predecessors());
+      @Override
+      public Map<Vertex<T>, Vertex<T>> predecessors() {
+        return predecessors;
+      }
+
+      @Override
+      public Map<Vertex<T>, Double> distances() {
+        return distances;
+      }
+
+      @Override
+      public List<Vertex<T>> path() {
+        return path;
+      }
+    };
+  }
+  
+  protected  MinDistanceResult<T> addPathToResult(
+      Vertex<T> source, Vertex<T> target,  
+      MinDistanceResult<T> result) {
+    return new MinDistanceResult<T>() {
+      final List<Vertex<T>> path = buildPath(source, target, result.predecessors());
       
       @Override
       public Map<Vertex<T>, Vertex<T>> predecessors() {
@@ -294,96 +463,5 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return result;
   }
-  
-  protected MinDistanceResult<T> bfs(Vertex<T> source, Predicate<Vertex<T>> goalFound) {
-    if (!hasVertex(source.getLabel())) {
-      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
-    }
-    int n = this.getVertices().size();
-    Map<Vertex<T>, Vertex<T>> predecessors = new HashMap<>(n);
-    Set<Vertex<T>> visited = new HashSet<>(n);
-    Map<Vertex<T>, Double> distances = new HashMap<>(n);
-    Queue<Vertex<T>> queue = initMinDistanceUtilities(n, source, predecessors, visited, distances);
-    
-    while (!queue.isEmpty()) {
-      Vertex<T> v = queue.remove();
-      visited.add(v);
-      if (goalFound.test(v)) {
-        break;
-      }
-      //Invariant: v is contained in distances at this point
-      double dV = distances.get(v);
-      for (Vertex<T> u: getNeighbours(v)) {
-        if (!visited.contains(u)) {
-          double dU = dV + 1;
-          if (distances.getOrDefault(u, Double.POSITIVE_INFINITY) > dU) {
-            distances.put(u,  dU);
-            predecessors.put(u, v);
-            queue.remove(u);
-            queue.add(u);
-            
-          }
-        }
-      }
-    }
-    return new MinDistanceResult<T>() {
-      @Override
-      public Map<Vertex<T>, Vertex<T>> predecessors() {
-        return predecessors;
-      }
 
-      @Override
-      public Map<Vertex<T>, Double> distances() {
-        return distances;
-      }
-
-      @Override
-      public List<Vertex<T>> path() {
-        return null;
-      }
-    };
-  }
-  
-  private Queue<Vertex<T>> initMinDistanceUtilities(
-      int n,
-      Vertex<T> source,
-      Map<Vertex<T>, Vertex<T>> predecessors,
-      Set<Vertex<T>> visited,
-      Map<Vertex<T>, Double> distances) {
-    predecessors.clear();
-    predecessors.put(source, null);
-    visited.clear();
-    distances.clear();
-    distances.put(source, 0.0);
-    //Use closures to provide an order for the priority queue
-    Comparator<Vertex<T>> vertexOrder = new Comparator<Vertex<T>>() {
-      @Override
-      public int compare(Vertex<T> o1, Vertex<T> o2) {
-        Double d1 = distances.getOrDefault(o1, Double.POSITIVE_INFINITY);
-        Double d2 = distances.getOrDefault(o2, Double.POSITIVE_INFINITY);
-        return d1.compareTo(d2);
-      }
-    };
-    Queue<Vertex<T>> queue = new PriorityQueue<>(vertexOrder);
-    queue.add(source);
-    return queue;
-  }
-
-  @Override
-  public MinDistanceResult<T> dijkstra(Vertex<T> source) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public MinDistanceResult<T> dijkstra(Vertex<T> source, Vertex<T> target) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public MinDistanceResult<T> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) {
-    // TODO Auto-generated method stub
-    return null;
-  }
 }

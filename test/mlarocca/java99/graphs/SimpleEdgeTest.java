@@ -57,11 +57,11 @@ public class SimpleEdgeTest {
   @Test
   public void testEquals() {
     assertEquals(eUV, eUVCopy);
+    assertEquals(eV1V, eVV1);
     //Weight doesn't matter
     assertEquals(eUV, eUVWeighted);
     assertNotEquals(eUV, eVU);
     assertNotEquals(eUV, eVV1);
-    assertNotEquals(eV1V, eVV1);
   }
 
 }

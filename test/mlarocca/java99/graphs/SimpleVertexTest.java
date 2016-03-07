@@ -42,7 +42,7 @@ public class SimpleVertexTest {
   @Test
   public void testEquality() {
     assertEquals(u, uCopy);
-    assertNotEquals(v, v1);
+    assertEquals(v, v1);
     assertNotEquals(v, u);
   }
 
