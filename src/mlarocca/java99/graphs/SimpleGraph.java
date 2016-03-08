@@ -24,6 +24,9 @@ import mlarocca.java99.graphs.data.MinDistanceResult;
 
 public class SimpleGraph<T> implements Graph<T> {
 
+  private static final String UNDIRECTED_EDGE_SYMBOL = "-";
+  private static final String DIRECTED_EDGE_SYMBOL = ">";
+  
   private ConcurrentMap<SimpleVertex<T>, List<Edge<T>>> adjList;
   private ConcurrentMap<String, SimpleVertex<T>> labelToVertex;
 
@@ -201,7 +204,7 @@ public class SimpleGraph<T> implements Graph<T> {
             Vertex<T> dst;
             String edge;
             if (neighbours.get(u).contains(v)) {
-              edge = "-";
+              edge = UNDIRECTED_EDGE_SYMBOL;
               if (u.compareTo(v) < 0) {
                 src = u;
                 dst = v;
@@ -210,7 +213,7 @@ public class SimpleGraph<T> implements Graph<T> {
                 dst = u;
               }
             } else {
-              edge = ">";
+              edge = DIRECTED_EDGE_SYMBOL;
               src = v;
               dst = u;
             }
@@ -223,7 +226,7 @@ public class SimpleGraph<T> implements Graph<T> {
         set.addAll(subset);
         return set;
       }).orElse(new HashSet<>());
-    return String.format("[%s]", String.join(",", edges));
+    return String.format("[%s]", String.join(", ", edges));
   }
 
   /**

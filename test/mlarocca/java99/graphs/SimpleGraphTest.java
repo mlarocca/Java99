@@ -65,6 +65,7 @@ public class SimpleGraphTest {
   private static Graph<Integer> cycleGraph;
   private static Graph<String> connectedGraph1;
   private static Graph<String> connectedGraph2;
+  private static Graph<Integer> connectedGraph3;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -156,6 +157,16 @@ public class SimpleGraphTest {
     connectedGraph2.addEdge(eCB);    
     connectedGraph2.addEdge(eAC);    
     connectedGraph2.addEdge(eDD);
+
+    connectedGraph3 = new SimpleGraph<>();
+    connectedGraph3.addVertex(vLabel);
+    connectedGraph3.addVertex(uLabel);
+    connectedGraph3.addVertex(wLabel);
+    connectedGraph3.addVertex(zLabel);
+    
+    connectedGraph3.addEdge(eUV);
+    connectedGraph3.addEdge(eVU);    
+    connectedGraph3.addEdge(eVW);    
   }
   
   @Before
@@ -547,6 +558,7 @@ public class SimpleGraphTest {
   
   @Test
   public void testToString() {
-    System.out.println(cycleGraph.toString());
+    assertEquals("[u > v, v > w1, w > z, z > u]", cycleGraph.toString());
+    assertEquals("[u - v, v > w1, z]", connectedGraph3.toString());
   }
 }
