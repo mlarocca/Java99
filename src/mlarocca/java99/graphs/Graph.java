@@ -20,7 +20,7 @@ public interface Graph<T> {
   public boolean hasVertex(String label);
 
   public List<Vertex<T>> getNeighbours(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
-  public List<Edge<T>> getAdjList(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
+  public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public List<Edge<T>> getEdgesTo(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
 
   public Edge<T> addEdge(Edge<T> e) throws IllegalArgumentException;  

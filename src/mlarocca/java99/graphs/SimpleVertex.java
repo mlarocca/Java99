@@ -73,6 +73,6 @@ class SimpleVertex<T> implements MutableVertex<T> {
   
   @Override
   public String toString() {
-    return String.format("%s{%s}", getLabel(), getValue().map(v -> v.toString()).orElse(""));
+    return String.format("%s%s", getLabel(), getValue().map(v -> String.format("%s", v.toString())).orElse(""));
   }
 }

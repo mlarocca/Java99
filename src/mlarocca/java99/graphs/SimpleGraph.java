@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,6 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return edges;
   }
-
 
   @Override
   public synchronized Vertex<T> addVertex(String label) throws IllegalArgumentException {
@@ -115,7 +115,7 @@ public class SimpleGraph<T> implements Graph<T> {
       newEdge = new SimpleEdge<T>(e);
     }
     
-    List<Edge<T>> adj = getAdjList(source);
+    List<Edge<T>> adj = getEdgesFrom(source);
 
     //Check if an edge between these vertices is already in the graph
     Optional<Edge<T>> maybeEdge = adj.stream()
@@ -156,14 +156,14 @@ public class SimpleGraph<T> implements Graph<T> {
   
   @Override
   public List<Vertex<T>> getNeighbours(Vertex<T> v) throws IllegalArgumentException {
-    return getAdjList(v)
+    return getEdgesFrom(v)
       .parallelStream()
       .map(e -> e.getDestination())
       .collect(Collectors.toList());
   }
 
   @Override
-  public List<Edge<T>> getAdjList(Vertex<T> v) throws IllegalArgumentException {
+  public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws IllegalArgumentException {
     if (!adjList.containsKey(v)) {
       throw new IllegalArgumentException("Vertex not in graph");
     }
@@ -179,6 +179,53 @@ public class SimpleGraph<T> implements Graph<T> {
     Collections.sort(edgesToV);
     return edgesToV;
   }
+  
+  @Override
+  public String toString() {
+    Map<Vertex<T>, HashSet<Vertex<T>>> neighbours = getVertices()
+      .stream()
+      .collect(Collectors.toMap(Function.identity(),
+          v -> new HashSet<Vertex<T>>(this.getNeighbours(v))));
+
+    Set<String> edges = getVertices().stream()
+      .map(v -> {
+        List<Edge<T>> outgoing = this.getEdgesFrom(v);
+        List<Edge<T>> ingoing = this.getEdgesTo(v);
+        Set<String> result = new LinkedHashSet<String>();
+        if (outgoing.isEmpty() && ingoing.isEmpty()) {
+           result.add(v.getLabel());
+        } else {
+          outgoing.forEach(e -> {
+            Vertex<T> u = e.getDestination();
+            Vertex<T> src;
+            Vertex<T> dst;
+            String edge;
+            if (neighbours.get(u).contains(v)) {
+              edge = "-";
+              if (u.compareTo(v) < 0) {
+                src = u;
+                dst = v;
+              } else {
+                src = v;
+                dst = u;
+              }
+            } else {
+              edge = ">";
+              src = v;
+              dst = u;
+            }
+            result.add(String.format("%s %s %s", src, edge, dst));
+          });
+        }
+        return result;
+      })
+      .reduce((set, subset) -> {
+        set.addAll(subset);
+        return set;
+      }).orElse(new HashSet<>());
+    return String.format("[%s]", String.join(",", edges));
+  }
+
   /**
    * 
    * @return
@@ -365,7 +412,7 @@ public class SimpleGraph<T> implements Graph<T> {
       }
       //Invariant: v is contained in distances at this point
       double dV = distances.get(v);
-      for (Edge<T> e: getAdjList(v)) {
+      for (Edge<T> e: getEdgesFrom(v)) {
         checkEdgeAndAddNodeToQueue(queue, e, dV, visited, distances, predecessors, distance);
       }
     }

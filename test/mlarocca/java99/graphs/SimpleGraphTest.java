@@ -232,7 +232,7 @@ public class SimpleGraphTest {
     graph.addEdge(eVU);
     graph.addEdge(eVW);
 
-    assertEquals(Arrays.asList(eVU, eVW), graph.getAdjList(v));
+    assertEquals(Arrays.asList(eVU, eVW), graph.getEdgesFrom(v));
   }
 
   @Test
@@ -543,5 +543,10 @@ public class SimpleGraphTest {
     expectedResult.clear();
     expectedResult.add(Arrays.asList(w, z, u));
     assertEquals(expectedResult, cycleGraph.allAcyclicPaths(w, u));  
+  }
+  
+  @Test
+  public void testToString() {
+    System.out.println(cycleGraph.toString());
   }
 }
