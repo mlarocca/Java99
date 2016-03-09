@@ -1,6 +1,7 @@
 package mlarocca.java99.graphs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -62,6 +63,36 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return edges;
   }
+  
+
+  @Override
+  public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws IllegalArgumentException {
+    if (!adjList.containsKey(v)) {
+      throw new IllegalArgumentException("Vertex not in graph");
+    }
+    return adjList.get(v);
+  }
+
+  @Override
+  public List<Edge<T>> getEdgesTo(Vertex<T> v) throws IllegalArgumentException {
+    List<Edge<T>> edgesToV = getEdges()
+      .stream()
+      .filter(e -> e.getDestination().equals(v))
+      .collect(Collectors.toList());
+    Collections.sort(edgesToV);
+    return edgesToV;
+  }
+
+  @Override
+  public Optional<Edge<T>> getEdgeBetween(Vertex<T> v, Vertex<T> u)
+      throws NullPointerException, IllegalArgumentException {
+    if (!hasVertex(v) || !hasVertex(u)) {
+      throw new IllegalArgumentException();
+    }
+    return getEdgesFrom(v).stream()
+      .filter(e -> e.getDestination().equals(u))
+      .findFirst();
+  }
 
   @Override
   public synchronized Vertex<T> addVertex(String label) throws IllegalArgumentException {
@@ -94,7 +125,12 @@ public class SimpleGraph<T> implements Graph<T> {
   public boolean hasVertex(String label) {
     return labelToVertex.containsKey(label);
   }
-
+  
+  @Override
+  public boolean hasVertex(Vertex<T> v) {
+    return hasVertex(v.getLabel());
+  }
+  
   @Override
   public synchronized Edge<T> addEdge(Edge<T> e) throws NullPointerException, IllegalArgumentException {
     if (e == null) {
@@ -164,24 +200,6 @@ public class SimpleGraph<T> implements Graph<T> {
       .map(e -> e.getDestination())
       .collect(Collectors.toList());
   }
-
-  @Override
-  public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws IllegalArgumentException {
-    if (!adjList.containsKey(v)) {
-      throw new IllegalArgumentException("Vertex not in graph");
-    }
-    return adjList.get(v);
-  }
-
-  @Override
-  public List<Edge<T>> getEdgesTo(Vertex<T> v) throws IllegalArgumentException {
-    List<Edge<T>> edgesToV = getEdges()
-      .stream()
-      .filter(e -> e.getDestination().equals(v))
-      .collect(Collectors.toList());
-    Collections.sort(edgesToV);
-    return edgesToV;
-  }
   
   @Override
   public String toString() {
@@ -196,14 +214,18 @@ public class SimpleGraph<T> implements Graph<T> {
         List<Edge<T>> ingoing = this.getEdgesTo(v);
         Set<String> result = new LinkedHashSet<String>();
         if (outgoing.isEmpty() && ingoing.isEmpty()) {
-           result.add(v.getLabel());
+          //Vertex with no ingoing or outgoing edges
+          result.add(v.getLabel());
         } else {
           outgoing.forEach(e -> {
             Vertex<T> u = e.getDestination();
             Vertex<T> src;
             Vertex<T> dst;
             String edge;
-            if (neighbours.get(u).contains(v)) {
+            String weight = e.getWeight() != 0.0 ? "/" + e.getWeight() : "";
+            
+            if (neighbours.get(u).contains(v) && 
+                e.getWeight() == getEdgeBetween(u, v).get().getWeight()) {
               edge = UNDIRECTED_EDGE_SYMBOL;
               if (u.compareTo(v) < 0) {
                 src = u;
@@ -217,7 +239,8 @@ public class SimpleGraph<T> implements Graph<T> {
               src = v;
               dst = u;
             }
-            result.add(String.format("%s %s %s", src, edge, dst));
+            
+            result.add(String.format("%s %s %s%s", src, edge, dst, weight));
           });
         }
         return result;
@@ -537,6 +560,9 @@ public class SimpleGraph<T> implements Graph<T> {
   @Override
   public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target)
       throws NullPointerException, IllegalArgumentException {
+    if (!hasVertex(target.getLabel())) {
+      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
+    }
     return allAcyclicPaths(source, target, new ArrayList<>());
   }
 
@@ -545,9 +571,6 @@ public class SimpleGraph<T> implements Graph<T> {
     List<Vertex<T>> newPath = new ArrayList<>(path);
     newPath.add(source);
     Set<Vertex<T>> visited = new HashSet<>(newPath);
-    if (!hasVertex(target.getLabel())) {
-      throw new IllegalArgumentException("Target vertex doesn't belong to the graph");
-    }
 
     if (source.equals(target)) {
       result.add(newPath);
@@ -559,6 +582,34 @@ public class SimpleGraph<T> implements Graph<T> {
       }      
     }
     return result;
+  }
+
+  @Override
+  public Set<List<Vertex<T>>> allCycles(Vertex<T> source)
+      throws NullPointerException, IllegalArgumentException {
+    if (!hasVertex(source.getLabel())) {
+      throw new IllegalArgumentException("Source vertex doesn't belong to the graph");
+    }
+    return allCycles(source, source, Arrays.asList(source));
+  }
+
+  protected Set<List<Vertex<T>>> allCycles(Vertex<T> source, Vertex<T> v, List<Vertex<T>> path)
+      throws NullPointerException, IllegalArgumentException {
+    Set<Vertex<T>> visited = new HashSet<>(path);
+    Set<List<Vertex<T>>> results = new HashSet<>();
+    
+    for (Vertex<T> u: getNeighbours(v)) {
+      if (u.equals(source)) {
+        List<Vertex<T>> newPath = new ArrayList<>(path);
+        newPath.add(u);
+        results.add(newPath);
+      } else if (!visited.contains(u)) {
+        List<Vertex<T>> newPath = new ArrayList<>(path);
+        newPath.add(u);
+        results.addAll(allCycles(source, u, newPath));
+      }
+    }
+    return results;
   }
 
 }

@@ -18,10 +18,12 @@ public interface Graph<T> {
 
   public Optional<Vertex<T>> getVertex(String label);
   public boolean hasVertex(String label);
+  public boolean hasVertex(Vertex<T> v);
 
   public List<Vertex<T>> getNeighbours(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public List<Edge<T>> getEdgesTo(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
+  public Optional<Edge<T>> getEdgeBetween(Vertex<T> v, Vertex<T> u) throws NullPointerException, IllegalArgumentException;
 
   public Edge<T> addEdge(Edge<T> e) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination, double weight) throws IllegalArgumentException;  
@@ -38,4 +40,5 @@ public interface Graph<T> {
   public MinDistanceResult<T> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) throws NullPointerException, IllegalArgumentException;
 
   public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
+  public Set<List<Vertex<T>>> allCycles(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
 }

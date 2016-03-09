@@ -41,6 +41,7 @@ public class SimpleGraphTest {
   private static SimpleEdge<Integer> eUV;
   private static SimpleEdge<Integer> eUVWeighted;
   private static SimpleEdge<Integer> eVU;
+  private static SimpleEdge<Integer> eVUWeighted;
   private static SimpleEdge<Integer> eVW;
   private static SimpleEdge<Integer> eWZ;
   private static SimpleEdge<Integer> eZU;
@@ -59,6 +60,7 @@ public class SimpleGraphTest {
   private static SimpleEdge<String> eFG;
   private static SimpleEdge<String> eGI;
   private static SimpleEdge<String> eHI;
+  private static SimpleEdge<String> eIC;
 
   private static Graph<Integer> graph;
   private static Graph<Integer> pathGraph;
@@ -86,6 +88,7 @@ public class SimpleGraphTest {
 
     eUV = new SimpleEdge<Integer>(u, v);
     eUVWeighted = new SimpleEdge<Integer>(u, v, 1);
+    eVUWeighted = new SimpleEdge<Integer>(v, u, 1);
     eVU = new SimpleEdge<Integer>(v, u);
     eVW = new SimpleEdge<Integer>(v, w);
     eWZ = new SimpleEdge<Integer>(w, z);
@@ -105,6 +108,7 @@ public class SimpleGraphTest {
     eFG = new SimpleEdge<String>(f, g);
     eGI = new SimpleEdge<String>(g, i);
     eHI = new SimpleEdge<String>(h, i);
+    eIC = new SimpleEdge<String>(i, c);
         
     pathGraph = new SimpleGraph<>();
     pathGraph.addVertex(vLabel);
@@ -146,6 +150,7 @@ public class SimpleGraphTest {
     connectedGraph1.addEdge(eFG);    
     connectedGraph1.addEdge(eGI);    
     connectedGraph1.addEdge(eHI);
+    connectedGraph1.addEdge(eIC);    
     
     connectedGraph2 = new SimpleGraph<>();
     connectedGraph2.addVertex(a.getLabel());
@@ -555,10 +560,46 @@ public class SimpleGraphTest {
     expectedResult.add(Arrays.asList(w, z, u));
     assertEquals(expectedResult, cycleGraph.allAcyclicPaths(w, u));  
   }
+
+  @Test
+  public void testAllCycles() {
+    Set<List<Vertex<String>>> expectedResult = new HashSet<>();
+    expectedResult.add(Arrays.asList(c, d, f, c));
+    expectedResult.add(Arrays.asList(c, h, i, c));
+    expectedResult.add(Arrays.asList(c, d, f, g, i, c));
+    assertEquals(expectedResult, connectedGraph1.allCycles(c));  
+
+    expectedResult.clear();
+    expectedResult.add(Arrays.asList(f, c, d, f));
+    expectedResult.add(Arrays.asList(f, g, i, c, d, f));
+    assertEquals(expectedResult, connectedGraph1.allCycles(f));  
+
+    Set<List<Vertex<String>>> expectedResultEmpty = new HashSet<>();
+    assertEquals(expectedResultEmpty, connectedGraph1.allCycles(a));  
+    assertEquals(expectedResultEmpty, connectedGraph1.allCycles(b));  
+  }
   
+  
+  @Test
+  public void testAllCyclesOnACycle() {
+    Set<List<Vertex<Integer>>> expectedResult = new HashSet<>();
+    expectedResult.add(Arrays.asList(u, v, w, z, u));
+    assertEquals(expectedResult, cycleGraph.allCycles(u));
+    expectedResult.clear();
+    expectedResult.add(Arrays.asList(w, z, u, v, w));
+    assertEquals(expectedResult, cycleGraph.allCycles(w));  
+  }
+
   @Test
   public void testToString() {
     assertEquals("[u > v, v > w1, w > z, z > u]", cycleGraph.toString());
     assertEquals("[u - v, v > w1, z]", connectedGraph3.toString());
+    connectedGraph3.addEdge(eUVWeighted);
+    assertEquals("[u > v/1.0, v > u, v > w1, z]", connectedGraph3.toString());
+    connectedGraph3.addEdge(eVUWeighted);
+    assertEquals("[u - v/1.0, v > w1, z]", connectedGraph3.toString());
+    //undo changes to the graph
+    connectedGraph3.addEdge(eUV);
+    connectedGraph3.addEdge(eVU);
   }
 }
