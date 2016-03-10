@@ -611,5 +611,55 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return results;
   }
+  
+  public Set<Graph<T>> allSpanningTrees() {
+    return allSpanningTrees(new HashSet<>(getEdges()), new HashSet<>())
+      .stream()
+      .map(edgeSet -> {
+        Graph<T> graph = new SimpleGraph<T>();
+        edgeSet.stream()
+          .forEach(e -> {
+            try {
+              graph.addVertex(e.getSource().getLabel());
+            } catch (IllegalArgumentException iae) {
+              //Nothing to do
+            }
+            try {
+              graph.addVertex(e.getDestination().getLabel());
+            } catch (IllegalArgumentException iae) {
+              //Nothing to do
+            }
+            graph.addEdge(e);
+          });
+        return graph;
+      })
+      .collect(Collectors.toSet());
+  }
+  
+  protected Set<Set<Edge<T>>> allSpanningTrees(Set<Edge> forest, Set<Set<Edge<T>>> testedTrees) {
+    return null;
+  }
+
+  @Override
+  public boolean isConnected() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean isAcyclic() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  /**
+   * An undirected graph is a tree iff it is acyclic and connected.
+   * A directed graph needs also to have exactly 1 less edge than the number of vertices,
+   * cause otherwise could have a subgraph like [a > b, c > a, c > b].
+   */
+  @Override
+  public boolean isTree() {
+    return isAcyclic() && isConnected() && (getEdges().size() == getVertices().size() - 1);
+  }
 
 }
