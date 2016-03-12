@@ -20,8 +20,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import mlarocca.java99.cache.utils.Wrapper;
 import mlarocca.java99.graphs.data.MinDistanceResult;
+import mlarocca.java99.graphs.data.StructureResult;
 
 public class SimpleGraph<T> implements Graph<T> {
 
@@ -113,6 +116,19 @@ public class SimpleGraph<T> implements Graph<T> {
     SimpleVertex<T> v = (SimpleVertex<T>) addVertex(label);
     v.setValue(value);
     return v;
+  }
+
+  @Override
+  public synchronized Vertex<T> addVertex(Vertex<T> v) throws IllegalArgumentException {
+    return v.getValue()
+      .map(value -> addVertex(v.getLabel(), value))
+      .orElseGet(new Supplier<Vertex<T>>() {
+
+        @Override
+        public Vertex<T> get() {
+          return addVertex(v.getLabel());
+        }
+      });
   }
 
   @Override
@@ -214,7 +230,7 @@ public class SimpleGraph<T> implements Graph<T> {
         List<Edge<T>> ingoing = this.getEdgesTo(v);
         Set<String> result = new LinkedHashSet<String>();
         if (outgoing.isEmpty() && ingoing.isEmpty()) {
-          //Vertex with no ingoing or outgoing edges
+          //Vertex with no in-going or out-going edges
           result.add(v.getLabel());
         } else {
           outgoing.forEach(e -> {
@@ -259,17 +275,29 @@ public class SimpleGraph<T> implements Graph<T> {
    * @throws IllegalArgumentException
    */
   @Override
-  public Map<Vertex<T>, Integer> dfs() {
+  public StructureResult<T> dfs() {
     Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
     Map<Vertex<T>, Integer> exitTimes = new HashMap<>();
     int time = 0;
+    Wrapper<Boolean> isAcyclic = new Wrapper<>(true);
     for (Vertex<T> v: getVertices()) {
       if (!entryTimes.containsKey(v)) {
         entryTimes.put(v, time);
-        time = 1 + dfs(v, entryTimes, exitTimes);
+        time = 1 + dfs(v, entryTimes, exitTimes, isAcyclic);
       }
     }
-    return exitTimes;
+    
+    return new StructureResult<T>() {
+      @Override
+      public Boolean isAcyclic() {
+        return isAcyclic.getValue();
+      }
+
+      @Override
+      public Map<Vertex<T>, Integer> exitTimes() {
+        return exitTimes;
+      }
+    };
   }
   
   /**
@@ -280,21 +308,34 @@ public class SimpleGraph<T> implements Graph<T> {
    * @throws IllegalArgumentException
    */
   @Override
-  public Map<Vertex<T>, Integer> dfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException {
+  public StructureResult<T> dfs(Vertex<T> source) throws NullPointerException, IllegalArgumentException {
     Map<Vertex<T>, Integer> entryTimes = new HashMap<>();
     Map<Vertex<T>, Integer> exitTimes = new HashMap<>();
+    final Wrapper<Boolean> isAcyclic = new Wrapper<>(true);
     entryTimes.put(source,  0);
-    dfs(source, entryTimes, exitTimes);
-    return exitTimes;
+    dfs(source, entryTimes, exitTimes, isAcyclic);
+    return new StructureResult<T>() {
+      @Override
+      public Boolean isAcyclic() {
+        return isAcyclic.getValue();
+      }
+
+      @Override
+      public Map<Vertex<T>, Integer> exitTimes() {
+        return exitTimes;
+      }
+    };
   }
   
-  protected int dfs(Vertex<T> u, Map<Vertex<T>, Integer> entryTimes, Map<Vertex<T>, Integer> exitTimes) {
+  protected int dfs(Vertex<T> u, Map<Vertex<T>, Integer> entryTimes, Map<Vertex<T>, Integer> exitTimes, Wrapper<Boolean> isAcyclic) {
     int time = entryTimes.get(u);
     
     for (Vertex<T> v: getNeighbours(u)) {
       if (!entryTimes.containsKey(v)) {
         entryTimes.put(v, time);
-        time = dfs(v, entryTimes, exitTimes);        
+        time = dfs(v, entryTimes, exitTimes, isAcyclic);        
+      } else if (!v.equals(u) && !exitTimes.containsKey(v)) {
+        isAcyclic.setValue(false);
       }
     }
     exitTimes.put(u, time + 1);
@@ -336,6 +377,25 @@ public class SimpleGraph<T> implements Graph<T> {
     }
     return path;
   }
+  
+  public List<Vertex<T>> topologicalOrder() {
+    StructureResult<T> result = dfs();
+    Map<Vertex<T>, Integer> exitTimes = result.exitTimes();
+    
+    Comparator<Vertex<T>> topologicalComparator = new Comparator<Vertex<T>>() {
+      @Override
+      public int compare(Vertex<T> o1, Vertex<T> o2) {
+        //Descending order
+        return exitTimes.get(o2).compareTo(exitTimes.get(o1));
+      }
+    };
+    
+    return getVertices()
+      .stream()
+      .sorted(topologicalComparator)
+      .collect(Collectors.toList());
+  }
+
   
   /**
    * 
@@ -613,43 +673,60 @@ public class SimpleGraph<T> implements Graph<T> {
   }
   
   public Set<Graph<T>> allSpanningTrees() {
-    return allSpanningTrees(new HashSet<>(getEdges()), new HashSet<>())
-      .stream()
-      .map(edgeSet -> {
-        Graph<T> graph = new SimpleGraph<T>();
-        edgeSet.stream()
-          .forEach(e -> {
-            try {
-              graph.addVertex(e.getSource().getLabel());
-            } catch (IllegalArgumentException iae) {
-              //Nothing to do
-            }
-            try {
-              graph.addVertex(e.getDestination().getLabel());
-            } catch (IllegalArgumentException iae) {
-              //Nothing to do
-            }
-            graph.addEdge(e);
-          });
-        return graph;
-      })
-      .collect(Collectors.toSet());
+    return allSpanningTrees(getVertices().size(), new HashSet<>(getEdges()), new HashSet<>());
   }
   
-  protected Set<Set<Edge<T>>> allSpanningTrees(Set<Edge> forest, Set<Set<Edge<T>>> testedTrees) {
-    return null;
+  protected Set<Graph<T>> allSpanningTrees(
+      int verticesNumber,
+      Set<Edge<T>> maybeTree, 
+      Set<Set<Edge<T>>> testedSets) {
+    
+    testedSets.add(maybeTree);
+
+    Set<Graph<T>> spanningTrees = new HashSet<>();
+    List<Vertex<T>> vertices = getVertices();
+    if (maybeTree.size() >= verticesNumber - 1) {
+      Graph<T> graph = new SimpleGraph<T>();
+      vertices.stream()
+        .forEach(v -> graph.addVertex(v));
+      maybeTree.stream()
+        .forEach(edge -> {
+          graph.addEdge(edge);
+        });
+      if (graph.isTree()) {
+        spanningTrees.add(graph);
+        //A spanning tree has exactly |V| - 1 edges, so removing more edges from this tree will result in no spanning tree
+      } else if (graph.isConnected()) {
+        maybeTree.forEach(e -> {
+          Set<Edge<T>> edgeSet = new HashSet<>(maybeTree);
+          edgeSet.remove(e);
+          if (!testedSets.contains(edgeSet)) {
+            spanningTrees.addAll(allSpanningTrees(verticesNumber, edgeSet, testedSets));          
+          }
+        });
+      }
+      //If the graph isn't connected, then removing more edges won't make it a tree...
+      
+    }
+    return spanningTrees;
   }
 
   @Override
   public boolean isConnected() {
-    // TODO Auto-generated method stub
-    return false;
+    boolean connected;
+    List<Vertex<T>> topologicallyOrderedVertices = topologicalOrder();
+    if (topologicallyOrderedVertices.isEmpty()) {
+      connected = false;
+    } else {
+      StructureResult<T> result = dfs(topologicallyOrderedVertices.get(0));
+      connected = result.exitTimes().keySet().containsAll(getVertices());
+    }
+    return connected;
   }
 
   @Override
   public boolean isAcyclic() {
-    // TODO Auto-generated method stub
-    return false;
+    return dfs().isAcyclic();
   }
 
   /**
@@ -661,5 +738,20 @@ public class SimpleGraph<T> implements Graph<T> {
   public boolean isTree() {
     return isAcyclic() && isConnected() && (getEdges().size() == getVertices().size() - 1);
   }
+  
+  @Override
+  public int hashCode() {
+    List<Integer> hashCodes = Stream.concat(
+      getVertices().parallelStream().map(Vertex<T>::hashCode),
+      getEdges().parallelStream().map(Edge<T>::hashCode))
+        .collect(Collectors.toList());
+    return hashCodes.hashCode();
+  }
 
+  @Override
+  public boolean equals(Object otherGraph) {
+    return otherGraph != null && 
+      otherGraph.getClass().equals(this.getClass()) &&
+      otherGraph.hashCode() == this.hashCode();  
+  }
 }

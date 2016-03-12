@@ -66,8 +66,12 @@ public class SimpleGraphTest {
   private static Graph<Integer> pathGraph;
   private static Graph<Integer> cycleGraph;
   private static Graph<String> connectedGraph1;
-  private static Graph<String> connectedGraph2;
-  private static Graph<Integer> connectedGraph3;
+  private static Graph<String> disconnectedGraph4;
+  private static Graph<Integer> disconnectedGraph5;
+  private static Graph<Integer> connectedGraph4;
+  private static Graph<Integer> disconnectedGraph1;
+  private static Graph<Integer> disconnectedGraph2;
+  private static Graph<Integer> disconnectedGraph3;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -152,27 +156,45 @@ public class SimpleGraphTest {
     connectedGraph1.addEdge(eHI);
     connectedGraph1.addEdge(eIC);    
     
-    connectedGraph2 = new SimpleGraph<>();
-    connectedGraph2.addVertex(a.getLabel());
-    connectedGraph2.addVertex(b.getLabel());
-    connectedGraph2.addVertex(c.getLabel());
-    connectedGraph2.addVertex(d.getLabel());
-    
-    connectedGraph2.addEdge(eAB);
-    connectedGraph2.addEdge(eCB);    
-    connectedGraph2.addEdge(eAC);    
-    connectedGraph2.addEdge(eDD);
+    connectedGraph4 = new SimpleGraph<>();
+    connectedGraph4.addVertex(uLabel);
 
-    connectedGraph3 = new SimpleGraph<>();
-    connectedGraph3.addVertex(vLabel);
-    connectedGraph3.addVertex(uLabel);
-    connectedGraph3.addVertex(wLabel);
-    connectedGraph3.addVertex(zLabel);
+    disconnectedGraph1 = new SimpleGraph<>();
+    disconnectedGraph1.addVertex(vLabel);
+    disconnectedGraph1.addVertex(uLabel);
+    disconnectedGraph1.addVertex(wLabel);
+    disconnectedGraph1.addVertex(zLabel);
     
-    connectedGraph3.addEdge(eUV);
-    connectedGraph3.addEdge(eVU);    
-    connectedGraph3.addEdge(eVW);    
-  }
+    disconnectedGraph1.addEdge(eUV);
+    disconnectedGraph1.addEdge(eVW);  
+    
+    disconnectedGraph2 = new SimpleGraph<>();
+    disconnectedGraph2.addVertex(vLabel);
+    disconnectedGraph2.addVertex(uLabel);
+  
+    disconnectedGraph3 = new SimpleGraph<>();
+
+    disconnectedGraph4 = new SimpleGraph<>();
+    disconnectedGraph4.addVertex(a.getLabel());
+    disconnectedGraph4.addVertex(b.getLabel());
+    disconnectedGraph4.addVertex(c.getLabel());
+    disconnectedGraph4.addVertex(d.getLabel());
+    
+    disconnectedGraph4.addEdge(eAB);
+    disconnectedGraph4.addEdge(eCB);    
+    disconnectedGraph4.addEdge(eAC);    
+    disconnectedGraph4.addEdge(eDD);
+    
+    disconnectedGraph5 = new SimpleGraph<>();
+    disconnectedGraph5.addVertex(vLabel);
+    disconnectedGraph5.addVertex(uLabel);
+    disconnectedGraph5.addVertex(wLabel);
+    disconnectedGraph5.addVertex(zLabel);
+    
+    disconnectedGraph5.addEdge(eUV);
+    disconnectedGraph5.addEdge(eVU);    
+    disconnectedGraph5.addEdge(eVW);
+}
   
   @Before
   public void setUpBefore() throws Exception {    
@@ -279,7 +301,7 @@ public class SimpleGraphTest {
   
   @Test
   public void testDfs() {
-    Map<Vertex<String>, Integer> exitTimes = connectedGraph1.dfs();
+    Map<Vertex<String>, Integer> exitTimes = connectedGraph1.dfs().exitTimes();
     assertEquals((Integer)1, exitTimes.get(a));
     assertEquals((Integer)3, exitTimes.get(b));
     assertEquals((Integer)5, exitTimes.get(e));
@@ -293,7 +315,7 @@ public class SimpleGraphTest {
 
   @Test
   public void testDfsFromVertex() {
-    Map<Vertex<String>, Integer> exitTimes = connectedGraph1.dfs(c);
+    Map<Vertex<String>, Integer> exitTimes = connectedGraph1.dfs(c).exitTimes();
     assertEquals((Integer)1, exitTimes.get(a));
     assertEquals((Integer)2, exitTimes.get(b));
     assertEquals((Integer)3, exitTimes.get(e));
@@ -304,7 +326,7 @@ public class SimpleGraphTest {
     assertEquals((Integer)8, exitTimes.get(h));
     assertEquals((Integer)9, exitTimes.get(c));
     
-    exitTimes = connectedGraph1.dfs(a);
+    exitTimes = connectedGraph1.dfs(a).exitTimes();
     assertEquals((Integer)1, exitTimes.get(a));
     assertEquals(null, exitTimes.get(b));
     assertEquals(null, exitTimes.get(e));
@@ -318,13 +340,13 @@ public class SimpleGraphTest {
   
   @Test
   public void testDfsFromVertexCycle() {
-    Map<Vertex<Integer>, Integer> exitTimes = cycleGraph.dfs(u);
+    Map<Vertex<Integer>, Integer> exitTimes = cycleGraph.dfs(u).exitTimes();
     assertEquals((Integer)1, exitTimes.get(z));
     assertEquals((Integer)2, exitTimes.get(w));
     assertEquals((Integer)3, exitTimes.get(v));
     assertEquals((Integer)4, exitTimes.get(u));
     
-    exitTimes = cycleGraph.dfs(v);
+    exitTimes = cycleGraph.dfs(v).exitTimes();
     assertEquals((Integer)1, exitTimes.get(u));
     assertEquals((Integer)2, exitTimes.get(z));
     assertEquals((Integer)3, exitTimes.get(w));
@@ -539,15 +561,15 @@ public class SimpleGraphTest {
     Set<List<Vertex<String>>> expectedResult = new HashSet<>();
     expectedResult.add(Arrays.asList(a, b));
     expectedResult.add(Arrays.asList(a, c, b));
-    assertEquals(expectedResult, connectedGraph2.allAcyclicPaths(a, b));  
+    assertEquals(expectedResult, disconnectedGraph4.allAcyclicPaths(a, b));  
 
     expectedResult.clear();
     expectedResult.add(Arrays.asList(a, c));
-    assertEquals(expectedResult, connectedGraph2.allAcyclicPaths(a, c));  
+    assertEquals(expectedResult, disconnectedGraph4.allAcyclicPaths(a, c));  
 
     Set<List<Vertex<String>>> expectedResultEmpty = new HashSet<>();
-    assertEquals(expectedResultEmpty, connectedGraph2.allAcyclicPaths(a, d));  
-    assertEquals(expectedResultEmpty, connectedGraph2.allAcyclicPaths(b, a));  
+    assertEquals(expectedResultEmpty, disconnectedGraph4.allAcyclicPaths(a, d));  
+    assertEquals(expectedResultEmpty, disconnectedGraph4.allAcyclicPaths(b, a));  
   }
   
   @Test
@@ -593,13 +615,120 @@ public class SimpleGraphTest {
   @Test
   public void testToString() {
     assertEquals("[u > v, v > w1, w > z, z > u]", cycleGraph.toString());
-    assertEquals("[u - v, v > w1, z]", connectedGraph3.toString());
-    connectedGraph3.addEdge(eUVWeighted);
-    assertEquals("[u > v/1.0, v > u, v > w1, z]", connectedGraph3.toString());
-    connectedGraph3.addEdge(eVUWeighted);
-    assertEquals("[u - v/1.0, v > w1, z]", connectedGraph3.toString());
+    assertEquals("[u - v, v > w1, z]", disconnectedGraph5.toString());
+    disconnectedGraph5.addEdge(eUVWeighted);
+    assertEquals("[u > v/1.0, v > u, v > w1, z]", disconnectedGraph5.toString());
+    disconnectedGraph5.addEdge(eVUWeighted);
+    assertEquals("[u - v/1.0, v > w1, z]", disconnectedGraph5.toString());
     //undo changes to the graph
-    connectedGraph3.addEdge(eUV);
-    connectedGraph3.addEdge(eVU);
+    disconnectedGraph5.addEdge(eUV);
+    disconnectedGraph5.addEdge(eVU);
   }
+  
+  @Test
+  public void isConnected() {
+    assertTrue(pathGraph.isConnected());
+    assertTrue(cycleGraph.isConnected());
+    assertTrue(connectedGraph1.isConnected());
+    //True for a graph with a single vertex
+    assertTrue(connectedGraph4.isConnected());
+    assertFalse(disconnectedGraph1.isConnected());
+    //False for a graph with 2 vertices and no edge
+    assertFalse(disconnectedGraph2.isConnected());
+    //False for empty graph
+    assertFalse(disconnectedGraph3.isConnected());
+    assertFalse(disconnectedGraph4.isConnected());
+    assertFalse(disconnectedGraph5.isConnected());
+  }
+
+  @Test
+  public void isAcyclic() {
+    assertTrue(pathGraph.isAcyclic());
+    assertFalse(cycleGraph.isAcyclic());
+    assertFalse(connectedGraph1.isAcyclic());
+    //True for a graph with a single vertex
+    assertTrue(connectedGraph4.isAcyclic());
+    assertTrue(disconnectedGraph1.isAcyclic());
+    //True for a graph with 2 vertices and no edge
+    assertTrue(disconnectedGraph2.isAcyclic());
+    //True for empty graph
+    assertTrue(disconnectedGraph3.isAcyclic());
+    assertTrue(disconnectedGraph4.isAcyclic());
+    assertFalse(disconnectedGraph5.isAcyclic());
+  }
+
+  @Test
+  public void isTree() {
+    assertTrue(pathGraph.isTree());
+    assertFalse(cycleGraph.isTree());
+    assertFalse(connectedGraph1.isTree());
+    //False for a graph with a single vertex
+    assertTrue(connectedGraph4.isTree());
+    assertFalse(disconnectedGraph1.isTree());
+    //False for a graph with 2 vertices and no edge
+    assertFalse(disconnectedGraph2.isTree());
+    //False for empty graph
+    assertFalse(disconnectedGraph3.isTree());
+    assertFalse(disconnectedGraph4.isTree());
+    assertFalse(disconnectedGraph5.isTree());
+  }
+  
+  @Test
+  public void isSpanningTree() {
+    Set<Graph<Integer>> expectedResult = new HashSet<>();
+    expectedResult.add(pathGraph);
+    //A path is a tree
+    assertEquals(expectedResult, pathGraph.allSpanningTrees());
+    
+    expectedResult.clear();
+    //Every path in the cycle is a tree
+    
+    Graph<Integer> g = new SimpleGraph<Integer>();
+    System.out.println(u.toString() +  v.toString() + w.toString());
+    g.addVertex(u);
+    g.addVertex(v);
+    System.out.println(g);
+    g.addVertex(w);
+    g.addVertex(z);
+    g.addEdge(eUV);
+    g.addEdge(eVW);
+    g.addEdge(eWZ);
+    
+    expectedResult.add(g);
+
+    g = new SimpleGraph<Integer>();
+    g.addVertex(u);
+    g.addVertex(v);
+    g.addVertex(w);
+    g.addVertex(z);
+    g.addEdge(eVW);
+    g.addEdge(eWZ);
+    g.addEdge(eZU);
+    
+    expectedResult.add(g);
+   
+    g = new SimpleGraph<Integer>();
+    g.addVertex(u);
+    g.addVertex(v);
+    g.addVertex(w);
+    g.addVertex(z);
+    g.addEdge(eZU);
+    g.addEdge(eUV);
+    g.addEdge(eVW);
+    
+    expectedResult.add(g);
+
+    g = new SimpleGraph<Integer>();
+    g.addVertex(u);
+    g.addVertex(v);
+    g.addVertex(w);
+    g.addVertex(z);
+    g.addEdge(eUV);
+    g.addEdge(eWZ);
+    g.addEdge(eZU);
+    
+    expectedResult.add(g);
+
+    assertEquals(expectedResult, cycleGraph.allSpanningTrees());
+  }    
 }
