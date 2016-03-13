@@ -41,6 +41,8 @@ public interface Graph<T> {
   public MinDistanceResult<T> dijkstra(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
   public MinDistanceResult<T> AStar(Vertex<T> source, Vertex<T> target, Function<Vertex<T>, Double> heuristic) throws NullPointerException, IllegalArgumentException;
 
+  public Graph<T> prim();
+
   public boolean isConnected();
   public boolean isAcyclic();
   public boolean isTree();

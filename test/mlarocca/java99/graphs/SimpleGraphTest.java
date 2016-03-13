@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +44,11 @@ public class SimpleGraphTest {
   private static SimpleEdge<Integer> eVU;
   private static SimpleEdge<Integer> eVUWeighted;
   private static SimpleEdge<Integer> eVW;
+  private static SimpleEdge<Integer> eVWWeighted;
   private static SimpleEdge<Integer> eWZ;
+  private static SimpleEdge<Integer> eWZWeighted;
   private static SimpleEdge<Integer> eZU;
+  private static SimpleEdge<Integer> eZUWeighted;
 
   private static SimpleEdge<String> eAB;
   private static SimpleEdge<String> eAC;
@@ -73,6 +77,8 @@ public class SimpleGraphTest {
   private static Graph<Integer> disconnectedGraph2;
   private static Graph<Integer> disconnectedGraph3;
 
+  private static Graph<Integer> weightedGraph1;
+
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     v = new SimpleVertex<>(vLabel);
@@ -92,11 +98,14 @@ public class SimpleGraphTest {
 
     eUV = new SimpleEdge<Integer>(u, v);
     eUVWeighted = new SimpleEdge<Integer>(u, v, 1);
-    eVUWeighted = new SimpleEdge<Integer>(v, u, 1);
     eVU = new SimpleEdge<Integer>(v, u);
+    eVUWeighted = new SimpleEdge<Integer>(v, u, 1);
     eVW = new SimpleEdge<Integer>(v, w);
+    eVWWeighted = new SimpleEdge<Integer>(v, w, 4);
     eWZ = new SimpleEdge<Integer>(w, z);
+    eWZWeighted = new SimpleEdge<Integer>(w, z, 2.5);
     eZU = new SimpleEdge<Integer>(z, u);
+    eZUWeighted = new SimpleEdge<Integer>(z, u, 2);
 
     eAB = new SimpleEdge<String>(a, b);
     eAC = new SimpleEdge<String>(a, c);
@@ -194,6 +203,16 @@ public class SimpleGraphTest {
     disconnectedGraph5.addEdge(eUV);
     disconnectedGraph5.addEdge(eVU);    
     disconnectedGraph5.addEdge(eVW);
+    
+    weightedGraph1 = new SimpleGraph<>();
+    weightedGraph1.addVertex(vLabel);
+    weightedGraph1.addVertex(wLabel);
+    weightedGraph1.addVertex(uLabel);
+    weightedGraph1.addVertex(zLabel);
+    weightedGraph1.addEdge(eUVWeighted);
+    weightedGraph1.addEdge(eVWWeighted);
+    weightedGraph1.addEdge(eWZWeighted);
+    weightedGraph1.addEdge(eZUWeighted);
 }
   
   @Before
@@ -684,10 +703,8 @@ public class SimpleGraphTest {
     //Every path in the cycle is a tree
     
     Graph<Integer> g = new SimpleGraph<Integer>();
-    System.out.println(u.toString() +  v.toString() + w.toString());
     g.addVertex(u);
     g.addVertex(v);
-    System.out.println(g);
     g.addVertex(w);
     g.addVertex(z);
     g.addEdge(eUV);
@@ -731,4 +748,25 @@ public class SimpleGraphTest {
 
     assertEquals(expectedResult, cycleGraph.allSpanningTrees());
   }    
+  
+  @Test
+  public void testPrim() {
+    Graph<Integer> expectedResult = weightedGraph1.allSpanningTrees().stream().min(new Comparator<Graph<Integer>>() {
+      @Override
+      public int compare(Graph<Integer> g1, Graph<Integer> g2) {        
+        Double w1 = g1.getEdges()
+          .stream()
+          .map(Edge<Integer>::getWeight)
+          .reduce((e1, e2) -> e1 + e2)
+          .get();
+        Double w2 = g2.getEdges()
+            .stream()
+            .map(Edge<Integer>::getWeight)
+            .reduce((e1, e2) -> e1 + e2)
+            .get();
+        return w1.compareTo(w2);
+      }
+    }).get();
+    assertEquals(expectedResult, weightedGraph1.prim());
+  }
 }

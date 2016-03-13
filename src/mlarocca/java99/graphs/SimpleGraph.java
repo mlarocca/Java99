@@ -30,6 +30,13 @@ public class SimpleGraph<T> implements Graph<T> {
 
   private static final String UNDIRECTED_EDGE_SYMBOL = "-";
   private static final String DIRECTED_EDGE_SYMBOL = ">";
+  @SuppressWarnings("unused")
+  private Comparator<Edge<T>> ByWeightEdgeComparator = new Comparator<Edge<T>>() {
+    @Override
+    public int compare(Edge<T> o1, Edge<T> o2) {
+      return ((Double)o1.getWeight()).compareTo((Double)o2.getWeight());
+    }
+  };
   
   private ConcurrentMap<SimpleVertex<T>, List<Edge<T>>> adjList;
   private ConcurrentMap<String, SimpleVertex<T>> labelToVertex;
@@ -506,7 +513,7 @@ public class SimpleGraph<T> implements Graph<T> {
     return wrapMinDistanceResults(predecessors, distances, null);
   }
   
-  public void checkEdgeAndAddNodeToQueue(
+  private void checkEdgeAndAddNodeToQueue(
       Queue<Vertex<T>> queue,
       Edge<T> e,
       Double dV,
@@ -553,7 +560,7 @@ public class SimpleGraph<T> implements Graph<T> {
     return queue;
   }
   
-  protected MinDistanceResult<T> wrapMinDistanceResults(
+  private MinDistanceResult<T> wrapMinDistanceResults(
       final Map<Vertex<T>, Vertex<T>> predecessors,
       final Map<Vertex<T>, Double> distances,
       final List<Vertex<T>> path) {
@@ -575,7 +582,7 @@ public class SimpleGraph<T> implements Graph<T> {
     };
   }
   
-  protected  MinDistanceResult<T> addPathToResult(
+  private  MinDistanceResult<T> addPathToResult(
       Vertex<T> source, Vertex<T> target,  
       MinDistanceResult<T> result) {
     return new MinDistanceResult<T>() {
@@ -598,7 +605,7 @@ public class SimpleGraph<T> implements Graph<T> {
     };
   }
   
-  protected List<Vertex<T>> buildPath(
+  private List<Vertex<T>> buildPath(
       Vertex<T> source,
       Vertex<T> target,
       Map<Vertex<T>, Vertex<T>> predecessors) {
@@ -615,6 +622,54 @@ public class SimpleGraph<T> implements Graph<T> {
       result = null;
     }
     return result;
+  }
+  
+  @Override
+  public Graph<T> prim() {
+    Graph<T> mst = new SimpleGraph<T>();
+    List<Vertex<T>> topOrder = topologicalOrder();
+    if (topOrder.isEmpty() || !this.isConnected()) {
+      return null;
+    }
+    Vertex<T> root = topOrder.get(0);
+    
+    Map<Vertex<T>, Double> distances = new HashMap<>(getVertices().size());    
+    Map<Vertex<T>, Edge<T>> edgeTo = new HashMap<>(getVertices().size());    
+    Comparator<Vertex<T>> PrimComparator = new Comparator<Vertex<T>>() {
+      @Override
+      public int compare(Vertex<T> v1, Vertex<T> v2) {
+        Double d1 = distances.getOrDefault(v1, Double.POSITIVE_INFINITY);
+        Double d2 = distances.getOrDefault(v2, Double.POSITIVE_INFINITY);
+            
+        return d1.compareTo(d2);
+      }
+    };
+    distances.put(root, 0.0);
+    
+    Queue<Vertex<T>> queue = new PriorityQueue<>(PrimComparator);
+    queue.add(root);
+    while (!queue.isEmpty()) {
+      Vertex<T> v = queue.remove();
+      if (!mst.hasVertex(v)) {
+        mst.addVertex(v);
+        if (!v.equals(root)) {
+          mst.addEdge(edgeTo.get(v));
+        }
+        
+        getEdgesFrom(v)
+          .stream()
+          .forEach(e -> {
+            Vertex<T> u = e.getDestination();
+            if (distances.getOrDefault(u, Double.POSITIVE_INFINITY) > e.getWeight()) {
+              distances.put(u, e.getWeight());
+              edgeTo.put(u, e);
+              queue.remove(u);  //This is linear in the size of the queue :/ No other way to update it!
+              queue.add(u);
+            }
+          });
+      }
+    }
+    return mst;
   }
 
   @Override
