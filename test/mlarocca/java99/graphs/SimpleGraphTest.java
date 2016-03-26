@@ -49,6 +49,10 @@ public class SimpleGraphTest {
   private static SimpleEdge<Integer> eWZWeighted;
   private static SimpleEdge<Integer> eZU;
   private static SimpleEdge<Integer> eZUWeighted;
+  private static SimpleEdge<Integer> eWVWeighted;
+  private static SimpleEdge<Integer> eZWWeighted;
+  private static SimpleEdge<Integer> eUZWeighted;
+
 
   private static SimpleEdge<String> eAB;
   private static SimpleEdge<String> eAC;
@@ -78,7 +82,25 @@ public class SimpleGraphTest {
   private static Graph<Integer> disconnectedGraph3;
 
   private static Graph<Integer> weightedGraph1;
-
+  private static Graph<Integer> weightedUndirectedGraph;
+  
+  private static Comparator<Graph<?>> GraphComparatorByWeight = new Comparator<Graph<?>>() {
+    @Override
+    public int compare(Graph<?> g1, Graph<?> g2) {        
+      Double w1 = g1.getEdges()
+        .stream()
+        .map(Edge::getWeight)
+        .reduce((e1, e2) -> e1 + e2)
+        .get();
+      Double w2 = g2.getEdges()
+          .stream()
+          .map(Edge::getWeight)
+          .reduce((e1, e2) -> e1 + e2)
+          .get();
+      return w1.compareTo(w2);
+    }
+  };
+  
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     v = new SimpleVertex<>(vLabel);
@@ -102,10 +124,13 @@ public class SimpleGraphTest {
     eVUWeighted = new SimpleEdge<Integer>(v, u, 1);
     eVW = new SimpleEdge<Integer>(v, w);
     eVWWeighted = new SimpleEdge<Integer>(v, w, 4);
+    eWVWeighted = new SimpleEdge<Integer>(w, v, 4);
     eWZ = new SimpleEdge<Integer>(w, z);
     eWZWeighted = new SimpleEdge<Integer>(w, z, 2.5);
+    eZWWeighted = new SimpleEdge<Integer>(z, w, 2.5);
     eZU = new SimpleEdge<Integer>(z, u);
     eZUWeighted = new SimpleEdge<Integer>(z, u, 2);
+    eUZWeighted = new SimpleEdge<Integer>(u, z, 2);
 
     eAB = new SimpleEdge<String>(a, b);
     eAC = new SimpleEdge<String>(a, c);
@@ -213,6 +238,20 @@ public class SimpleGraphTest {
     weightedGraph1.addEdge(eVWWeighted);
     weightedGraph1.addEdge(eWZWeighted);
     weightedGraph1.addEdge(eZUWeighted);
+    
+    weightedUndirectedGraph = new SimpleGraph<>();
+    weightedUndirectedGraph.addVertex(vLabel);
+    weightedUndirectedGraph.addVertex(wLabel);
+    weightedUndirectedGraph.addVertex(uLabel);
+    weightedUndirectedGraph.addVertex(zLabel);
+    weightedUndirectedGraph.addEdge(eUVWeighted);
+    weightedUndirectedGraph.addEdge(eVUWeighted);
+    weightedUndirectedGraph.addEdge(eVWWeighted);
+    weightedUndirectedGraph.addEdge(eWVWeighted);
+    weightedUndirectedGraph.addEdge(eWZWeighted);
+    weightedUndirectedGraph.addEdge(eZWWeighted);
+    weightedUndirectedGraph.addEdge(eZUWeighted);
+    weightedUndirectedGraph.addEdge(eUZWeighted);        
 }
   
   @Before
@@ -747,26 +786,19 @@ public class SimpleGraphTest {
     expectedResult.add(g);
 
     assertEquals(expectedResult, cycleGraph.allSpanningTrees());
-  }    
+  }
   
   @Test
-  public void testPrim() {
-    Graph<Integer> expectedResult = weightedGraph1.allSpanningTrees().stream().min(new Comparator<Graph<Integer>>() {
-      @Override
-      public int compare(Graph<Integer> g1, Graph<Integer> g2) {        
-        Double w1 = g1.getEdges()
-          .stream()
-          .map(Edge<Integer>::getWeight)
-          .reduce((e1, e2) -> e1 + e2)
-          .get();
-        Double w2 = g2.getEdges()
-            .stream()
-            .map(Edge<Integer>::getWeight)
-            .reduce((e1, e2) -> e1 + e2)
-            .get();
-        return w1.compareTo(w2);
-      }
-    }).get();
-    assertEquals(expectedResult, weightedGraph1.prim());
+  public void testPrimUndirected() {
+    //Prim doesn't work on certain directed Graphs
+    Graph<Integer> expectedResult = weightedUndirectedGraph.allSpanningTrees().stream().min(GraphComparatorByWeight).get();
+    assertEquals(expectedResult, weightedUndirectedGraph.prim());
+  }
+  
+  @Test
+  public void testPrimDirected() {
+    //Prim doesn't work on certain directed Graphs
+    Graph<Integer> expectedResult = weightedGraph1.allSpanningTrees().stream().min(GraphComparatorByWeight).get();
+    assertNotEquals(expectedResult, weightedGraph1.prim());
   }
 }
