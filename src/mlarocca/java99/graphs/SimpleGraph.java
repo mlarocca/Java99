@@ -33,9 +33,10 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   private static final String UNDIRECTED_EDGE_SYMBOL = "-";
   private static final String DIRECTED_EDGE_SYMBOL = ">";
   
-  private static final String VERTEX_REGEX = "[^\\s-><\\[\\]]+";
-  private static final Pattern DIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*>\\s*(" + VERTEX_REGEX + ")$");
-  private static final Pattern UNDIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*-\\s*(" + VERTEX_REGEX + ")$");
+  private static final String VERTEX_REGEX = "[^\\s-><\\[\\]/]+";
+  private static final String NUMBER_REGEX = "\\s*(\\d+(?:\\.\\d+)?)\\s*";
+  private static final Pattern DIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*>\\s*(" + VERTEX_REGEX + ")(?:\\s*/" + NUMBER_REGEX + ")?$");
+  private static final Pattern UNDIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*-\\s*(" + VERTEX_REGEX + ")(?:\\s*/" + NUMBER_REGEX + ")?$");
   private static final Pattern VERTEX_PATTERN = Pattern.compile("^" + VERTEX_REGEX + "$");
   
   private static <T> boolean addVertexFromString(String vertexStr, Graph<T> graph) {
@@ -51,10 +52,28 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     String v2Label = matcher.group(2);
     Vertex<T> v1 = graph.getOrAddVertex(v1Label);
     Vertex<T> v2 = graph.getOrAddVertex(v2Label);
+    boolean updated;
+    Double weight;
     
-    boolean updated = graph.addEdge(v1, v2) != null;
-    if (undirectedEdge) {
-      updated = (graph.addEdge(v2, v1) != null) && updated;
+    try {
+      weight = new Double(matcher.group(3));
+    } catch (NullPointerException npe) {
+      weight = null;
+    } catch (NumberFormatException nfe) {
+      return false;
+    }
+    
+    if (weight != null) {
+      updated = graph.addEdge(v1, v2, weight) != null;
+      if (undirectedEdge) {
+        updated = (graph.addEdge(v2, v1, weight) != null) && updated;
+      }
+    } else {
+      updated = graph.addEdge(v1, v2) != null;
+      if (undirectedEdge) {
+        updated = (graph.addEdge(v2, v1) != null) && updated;
+      }
+
     }
     return updated;
   }

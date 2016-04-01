@@ -18,6 +18,7 @@ import org.junit.Test;
 import mlarocca.java99.graphs.data.MinDistanceResult;
 
 public class SimpleGraphTest {
+  private static final double DEFAULT_EDGE_WEIGHT = 0.0;
   private static final String vLabel = "v";
   private static final String wLabel = "w";
   private static final String uLabel = "u";
@@ -318,15 +319,23 @@ public class SimpleGraphTest {
     assertEquals((Double)eUVWeighted.getWeight(), (Double)graph.getEdges().get(0).getWeight());
   }  
 
-  private static <T> void testVertex(Graph<T> g, String sourceLabel, String destLabel, boolean undirected) {
+  private static <T> void testEdge(Graph<T> g, String sourceLabel, String destLabel, double weight, boolean undirected) {
     assertTrue(g.hasVertex(sourceLabel));
     assertTrue(g.hasVertex(destLabel));
     Vertex<T> vA = g.getVertex(sourceLabel).get();
     Vertex<T> vB = g.getVertex(destLabel).get();
     assertTrue(g.getNeighbours(vA).contains(vB));
+    assertTrue(g.getEdgesFrom(vA)
+      .stream()
+      .anyMatch(e -> e.getDestination().equals(vB) && e.getWeight() == weight));
+    
     assertEquals(undirected, g.getNeighbours(vB).contains(vA));
   }
-
+ 
+  private static <T> void testEdge(Graph<T> g, String sourceLabel, String destLabel, boolean undirected) {
+    testEdge(g, sourceLabel, destLabel, DEFAULT_EDGE_WEIGHT, undirected);
+  }
+  
   @Test
   public void testFromStringVertex() {
     Graph<?> g = SimpleGraph.fromString("[a]");
@@ -352,15 +361,27 @@ public class SimpleGraphTest {
   @Test
   public void testFromStringDirectedEdge() {
     Graph<Integer> g = SimpleGraph.fromString("[a>b]");
-    testVertex(g, "a", "b", false);
+    testEdge(g, "a", "b", false);
     g = SimpleGraph.fromString("[A > bi ]");
-    testVertex(g, "A", "bi", false);
+    testEdge(g, "A", "bi", false);
     g = SimpleGraph.fromString("[ A > bi , cii > DD,    z>    w9]");
-    testVertex(g, "A", "bi", false);
-    testVertex(g, "cii", "DD", false);
-    testVertex(g, "z", "w9", false);
+    testEdge(g, "A", "bi", false);
+    testEdge(g, "cii", "DD", false);
+    testEdge(g, "z", "w9", false);
   }
   
+  @Test
+  public void testFromStringDirectedWeightedEdge() {
+    Graph<Integer> g = SimpleGraph.fromString("[a>b/1]");
+    testEdge(g, "a", "b", 1, false);
+    g = SimpleGraph.fromString("[A > bi /  2.0 ]");
+    testEdge(g, "A", "bi", 2.0, false);
+    g = SimpleGraph.fromString(" [ A > bi/03.1 , cii > DD/1234.56,    z>    w9  / 3.14158  ]  ");
+    testEdge(g, "A", "bi", 3.1, false);
+    testEdge(g, "cii", "DD", 1234.56, false);
+    testEdge(g, "z", "w9", 3.14158, false);
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testFromIllegalStringDirectedEdge() {
     SimpleGraph.fromString("[a - b>c]");
@@ -369,19 +390,43 @@ public class SimpleGraphTest {
   @Test
   public void testFromStringUndirectedEdge() {
     Graph<Integer> g = SimpleGraph.fromString("[a-b]");
-    testVertex(g, "a", "b", true);
+    testEdge(g, "a", "b", true);
     g = SimpleGraph.fromString("[A - b$i ]");
-    testVertex(g, "A", "b$i", true);
+    testEdge(g, "A", "b$i", true);
     g = SimpleGraph.fromString("[ A - bi , 0cii - _DD,    z -    w9]");
-    testVertex(g, "A", "bi", true);
-    testVertex(g, "0cii", "_DD", true);
-    testVertex(g, "z", "w9", true);
+    testEdge(g, "A", "bi", true);
+    testEdge(g, "0cii", "_DD", true);
+    testEdge(g, "z", "w9", true);
+  }
+
+  @Test
+  public void testFromStringUndirectedWeightedEdge() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b/10]");
+    testEdge(g, "a", "b", 10, true);
+    g = SimpleGraph.fromString("[A - b$i / 2.5  ]");
+    testEdge(g, "A", "b$i", 2.5, true);
+    g = SimpleGraph.fromString("[ A - bi /3 , 0cii - _DD/123.12,    z -    w9 /  12]");
+    testEdge(g, "A", "bi", 3, true);
+    testEdge(g, "0cii", "_DD", 123.12, true);
+    testEdge(g, "z", "w9", 12, true);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFromIllegalStringUndirectedEdge() {
     SimpleGraph.fromString("[a > b-c]");
   }
+
+  @Test
+  public void testFromString() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b, c, d > e, a> e, b > d, d > b]");
+    testEdge(g, "a", "b", true);
+    testEdge(g, "d", "e", false);
+    testEdge(g, "a", "e", false);
+    testEdge(g, "d", "b", true);
+    assertTrue(g.hasVertex("c"));
+    assertEquals(g.getNeighbours(g.getVertex("c").get()), Arrays.asList());
+  }
+  
   
   @Test
   public void testToString() {
