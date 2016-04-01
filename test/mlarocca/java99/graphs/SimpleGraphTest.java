@@ -318,6 +318,84 @@ public class SimpleGraphTest {
     assertEquals((Double)eUVWeighted.getWeight(), (Double)graph.getEdges().get(0).getWeight());
   }  
 
+  private static <T> void testVertex(Graph<T> g, String sourceLabel, String destLabel, boolean undirected) {
+    assertTrue(g.hasVertex(sourceLabel));
+    assertTrue(g.hasVertex(destLabel));
+    Vertex<T> vA = g.getVertex(sourceLabel).get();
+    Vertex<T> vB = g.getVertex(destLabel).get();
+    assertTrue(g.getNeighbours(vA).contains(vB));
+    assertEquals(undirected, g.getNeighbours(vB).contains(vA));
+  }
+
+  @Test
+  public void testFromStringVertex() {
+    Graph<?> g = SimpleGraph.fromString("[a]");
+    assertTrue(g.hasVertex("a"));
+    g = SimpleGraph.fromString("[ a  ]");
+    assertTrue(g.hasVertex("a"));
+    g = SimpleGraph.fromString("[ a , bi ,  www1 ]");
+    assertTrue(g.hasVertex("a"));
+    assertTrue(g.hasVertex("bi"));
+    assertTrue(g.hasVertex("www1"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromIllegalStringGraph() {
+    SimpleGraph.fromString("a]");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromIllegalStringVertex() {
+    SimpleGraph.fromString("[a b]");
+  }
+  
+  @Test
+  public void testFromStringDirectedEdge() {
+    Graph<Integer> g = SimpleGraph.fromString("[a>b]");
+    testVertex(g, "a", "b", false);
+    g = SimpleGraph.fromString("[A > bi ]");
+    testVertex(g, "A", "bi", false);
+    g = SimpleGraph.fromString("[ A > bi , cii > DD,    z>    w9]");
+    testVertex(g, "A", "bi", false);
+    testVertex(g, "cii", "DD", false);
+    testVertex(g, "z", "w9", false);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromIllegalStringDirectedEdge() {
+    SimpleGraph.fromString("[a - b>c]");
+  }
+
+  @Test
+  public void testFromStringUndirectedEdge() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b]");
+    testVertex(g, "a", "b", true);
+    g = SimpleGraph.fromString("[A - b$i ]");
+    testVertex(g, "A", "b$i", true);
+    g = SimpleGraph.fromString("[ A - bi , 0cii - _DD,    z -    w9]");
+    testVertex(g, "A", "bi", true);
+    testVertex(g, "0cii", "_DD", true);
+    testVertex(g, "z", "w9", true);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromIllegalStringUndirectedEdge() {
+    SimpleGraph.fromString("[a > b-c]");
+  }
+  
+  @Test
+  public void testToString() {
+    assertEquals("[u > v, v > w1, w > z, z > u]", cycleGraph.toString());
+    assertEquals("[u - v, v > w1, z]", disconnectedGraph5.toString());
+    disconnectedGraph5.addEdge(eUVWeighted);
+    assertEquals("[u > v/1.0, v > u, v > w1, z]", disconnectedGraph5.toString());
+    disconnectedGraph5.addEdge(eVUWeighted);
+    assertEquals("[u - v/1.0, v > w1, z]", disconnectedGraph5.toString());
+    //undo changes to the graph
+    disconnectedGraph5.addEdge(eUV);
+    disconnectedGraph5.addEdge(eVU);
+  }
+  
   @Test
   public void testGetAdjList() {
     assertEquals(Arrays.asList(), graph.getEdges());
@@ -668,19 +746,6 @@ public class SimpleGraphTest {
     expectedResult.clear();
     expectedResult.add(Arrays.asList(w, z, u, v, w));
     assertEquals(expectedResult, cycleGraph.allCycles(w));  
-  }
-
-  @Test
-  public void testToString() {
-    assertEquals("[u > v, v > w1, w > z, z > u]", cycleGraph.toString());
-    assertEquals("[u - v, v > w1, z]", disconnectedGraph5.toString());
-    disconnectedGraph5.addEdge(eUVWeighted);
-    assertEquals("[u > v/1.0, v > u, v > w1, z]", disconnectedGraph5.toString());
-    disconnectedGraph5.addEdge(eVUWeighted);
-    assertEquals("[u - v/1.0, v > w1, z]", disconnectedGraph5.toString());
-    //undo changes to the graph
-    disconnectedGraph5.addEdge(eUV);
-    disconnectedGraph5.addEdge(eVU);
   }
   
   @Test

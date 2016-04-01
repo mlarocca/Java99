@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,10 +28,69 @@ import mlarocca.java99.cache.utils.Wrapper;
 import mlarocca.java99.graphs.data.MinDistanceResult;
 import mlarocca.java99.graphs.data.StructureResult;
 
-public class SimpleGraph<T> implements Graph<T> {
+public class SimpleGraph<T> implements GraphInternal<T> {
 
   private static final String UNDIRECTED_EDGE_SYMBOL = "-";
   private static final String DIRECTED_EDGE_SYMBOL = ">";
+  
+  private static final String VERTEX_REGEX = "[^\\s-><\\[\\]]+";
+  private static final Pattern DIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*>\\s*(" + VERTEX_REGEX + ")$");
+  private static final Pattern UNDIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*-\\s*(" + VERTEX_REGEX + ")$");
+  private static final Pattern VERTEX_PATTERN = Pattern.compile("^" + VERTEX_REGEX + "$");
+  
+  private static <T> boolean addVertexFromString(String vertexStr, Graph<T> graph) {
+    Matcher vertexMatcher = VERTEX_PATTERN.matcher(vertexStr);
+    if (vertexMatcher.matches()) {
+      return graph.getOrAddVertex(vertexStr) != null;
+    }
+    return false;
+  }
+  
+  private static <T> boolean addEdgeFromMatcher(Matcher matcher, boolean undirectedEdge, Graph<T> graph) {
+    String v1Label = matcher.group(1);
+    String v2Label = matcher.group(2);
+    Vertex<T> v1 = graph.getOrAddVertex(v1Label);
+    Vertex<T> v2 = graph.getOrAddVertex(v2Label);
+    
+    boolean updated = graph.addEdge(v1, v2) != null;
+    if (undirectedEdge) {
+      updated = (graph.addEdge(v2, v1) != null) && updated;
+    }
+    return updated;
+  }
+
+  private static <T> boolean addEdgeFromString(String edgeStr, Graph<T> graph) {
+    Matcher directedEdgeMatcher = DIRECTED_EDGE_PATTERN.matcher(edgeStr);
+    Matcher undirectedEdgeMatcher = UNDIRECTED_EDGE_PATTERN.matcher(edgeStr);
+    if (directedEdgeMatcher.matches()) {
+      return addEdgeFromMatcher(directedEdgeMatcher, false, graph);
+    } else if (undirectedEdgeMatcher.matches()) {
+      return addEdgeFromMatcher(undirectedEdgeMatcher, true, graph);  
+    } else {
+      return false;
+    }
+    
+  }
+  
+  public static <T> Graph<T> fromString(String str) throws IllegalArgumentException {
+    Graph<T> graph = new SimpleGraph<>();
+    str = str.trim();
+    if (!str.startsWith("[") || !str.endsWith("]")) {
+      throw new IllegalArgumentException("Parse error: Graph must be enclosed in square brackets");
+    }
+    
+    String[] parts = str.substring(1, str.length() - 1).split(",");
+    
+    for (String element : parts) {
+      element = element.trim();
+      if (!addVertexFromString(element, graph) && !addEdgeFromString(element, graph)) {
+        throw new IllegalArgumentException(String.format("Parse error: %s can be neither parsed to a valid vertex nor to a valid edge", element));
+      }
+    }
+    
+    return graph;
+  }
+  
   @SuppressWarnings("unused")
   private Comparator<Edge<T>> ByWeightEdgeComparator = new Comparator<Edge<T>>() {
     @Override
@@ -138,6 +199,16 @@ public class SimpleGraph<T> implements Graph<T> {
       });
   }
 
+  @Override
+  public Vertex<T> getOrAddVertex(String label) {
+    return getVertex(label).orElseGet(new Supplier<Vertex<T>>() {
+      @Override
+      public Vertex<T> get() {
+        return addVertex(label);
+      }
+    });
+  }
+  
   @Override
   public Optional<Vertex<T>> getVertex(String label) {
     Vertex<T> v = labelToVertex.get(label);

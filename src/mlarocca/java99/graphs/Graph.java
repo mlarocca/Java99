@@ -15,7 +15,8 @@ public interface Graph<T> {
   public Vertex<T> addVertex(String label) throws IllegalArgumentException;
   public Vertex<T> addVertex(String label, T value) throws IllegalArgumentException;
   public Vertex<T> addVertex(Vertex<T> v) throws IllegalArgumentException;
-
+  public Vertex<T> getOrAddVertex(String label);
+  
   public Optional<Vertex<T>> getVertex(String label);
   public boolean hasVertex(String label);
   public boolean hasVertex(Vertex<T> v);
@@ -50,4 +51,9 @@ public interface Graph<T> {
   public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
   public Set<List<Vertex<T>>> allCycles(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
   public Set<Graph<T>> allSpanningTrees();
+}
+
+//Interface for package only methods
+interface GraphInternal<T> extends Graph<T> {
+  public Vertex<T> getOrAddVertex(String label);
 }
