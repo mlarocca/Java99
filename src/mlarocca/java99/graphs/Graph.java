@@ -51,6 +51,8 @@ public interface Graph<T> {
   public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
   public Set<List<Vertex<T>>> allCycles(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
   public Set<Graph<T>> allSpanningTrees();
+  
+  public <R> boolean isIsomorphic(Graph<R> other);
 }
 
 //Interface for package only methods
