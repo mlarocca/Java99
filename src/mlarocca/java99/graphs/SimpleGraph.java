@@ -899,4 +899,155 @@ public class SimpleGraph<T> implements GraphInternal<T> {
       otherGraph.getClass().equals(this.getClass()) &&
       otherGraph.hashCode() == this.hashCode();  
   }
+  
+  private static class Degree implements Comparable<Degree> {
+    private int _inDegree;
+    private int _outDegree;
+    
+    public Degree(int inDegree, int outDegree) {
+      _inDegree = inDegree;
+      _outDegree = outDegree;
+    }
+    
+    @SuppressWarnings("unused")
+    public int inDegree() {
+      return _inDegree;
+    }
+    
+    @SuppressWarnings("unused")
+    public int outDegree() {
+      return _outDegree;
+    }
+    
+    @Override
+    public int hashCode() {
+      return Arrays.asList(_inDegree, _outDegree).hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object other) {
+      return (other != null && 
+          other.getClass() == this.getClass() && 
+          other.hashCode() == this.hashCode());
+    }
+
+    @Override
+    public int compareTo(Degree other) {
+      return this.hashCode() - other.hashCode();
+    }
+  }
+  
+  private static <R> Map<Degree, List<Vertex<R>>> groupVerticesByDegree(Graph<R> graph) {
+    Function<Vertex<R>, Degree> vertexToDegree = v -> {
+      int inDegree = graph.getEdgesTo(v).size();
+      int outDegree = graph.getEdgesFrom(v).size();
+      return new Degree(inDegree, outDegree);
+    };
+    
+    return graph.getVertices()
+      .stream()
+      .collect(Collectors.groupingBy(vertexToDegree));
+  }
+
+  private static <R, S> boolean checkGroupedVerticesIsomorphicCompatibility(
+      Map<Degree, List<Vertex<R>>> groupedVertices1,
+      Map<Degree, List<Vertex<S>>> groupedVertices2) {
+    return groupedVertices1.keySet()
+      .stream()
+      .allMatch(degree1 -> {
+        return groupedVertices2.containsKey(degree1) && 
+          groupedVertices1.get(degree1).size() == groupedVertices2.get(degree1).size();
+     });
+  }
+  
+  /**
+   * For a given vertex relabeling v2 -> v1,  in a given isomorphism relabeling,
+   * checks that the assignment is legal, i.e. that for every outgoing edge from v2
+   * to v in graph2, there is an outgoing edge from v1 to v' in graph1, such that
+   * v -> v' is compatible with current relabeling.
+   * 
+   * @param graph1 The first graph to be checked for isomorphism.
+   * @param graph2 Second graph to check.
+   * @param v1 New graph1's vertex added to the relabeling.
+   * @param v2 New graph2's vertex added to the relabeling.
+   * @param relabeling Current relabeling rules, including v2 -> v1.
+   * @return True, iff all the conditions above are met.
+   */
+  private static <R, S> boolean  checkRelabelingAssignment(
+      Graph<R> graph1,
+      Graph<S> graph2,
+      Vertex<R> v1,
+      Vertex<S> v2,
+      Map<Vertex<S>, Vertex<R>> relabeling) {
+     
+    Set<Vertex<R>> outNeighours1 = new HashSet<>(graph1.getNeighbours(v1));
+    Set<Vertex<S>> outNeighours2 = new HashSet<>(graph2.getNeighbours(v2));
+    boolean match = outNeighours2.stream().allMatch(v -> {
+      return !relabeling.containsKey(v) || outNeighours1.contains(relabeling.get(v));
+    });
+    if (match) {
+      Set<Vertex<R>> inNeighours1 = graph1.getEdgesTo(v1).stream().map(Edge::getSource).collect(Collectors.toSet());
+      Set<Vertex<S>> inNeighours2 = graph2.getEdgesTo(v2).stream().map(Edge::getSource).collect(Collectors.toSet());
+      match = inNeighours2.stream().allMatch(v -> {
+        return !relabeling.containsKey(v) || inNeighours1.contains(relabeling.get(v));
+      });
+    }
+    
+    return match;
+  }
+  
+  private static <R, S> boolean checkAllPossibleRelabeling(
+      Graph<R> graph1,
+      Graph<S> graph2,
+      Map<Degree, List<Vertex<R>>> groupedVertices1,
+      Map<Degree, List<Vertex<S>>> groupedVertices2,
+      Map<Vertex<S>, Vertex<R>> relabeling,
+      Queue<Degree> degreesLeft) {
+    
+    if (degreesLeft.isEmpty()) {
+      return true;
+    }
+    
+    Degree next = degreesLeft.remove();
+    Set<Vertex<R>> g1VerticesAvailable = new HashSet<>(groupedVertices1.get(next));
+    g1VerticesAvailable.removeAll(relabeling.values());
+    
+    return groupedVertices2.get(next).stream().anyMatch(v2 -> {
+      return g1VerticesAvailable.stream().anyMatch(v1 -> {
+        Map<Vertex<S>, Vertex<R>> relabelingRecursive = new HashMap<>(relabeling);
+        relabelingRecursive.put(v2, v1);
+        if (checkRelabelingAssignment(graph1, graph2, v1, v2, relabelingRecursive)) {
+          return checkAllPossibleRelabeling(graph1, graph2, groupedVertices1, groupedVertices2, relabelingRecursive, degreesLeft);
+        } else {
+          return false;
+        }
+      });
+    }); 
+  }
+  
+  
+  @Override
+  public <S> boolean isIsomorphicTo(Graph<S> other) {
+    List<Vertex<S>> otherVertices = other.getVertices();
+
+    //Two graphs can be isomorphic only if:
+    
+    //#1. They have the same number of vertices and edges
+    if (this.getVertices().size() != otherVertices.size() ||
+        this.getEdges().size() != other.getEdges().size()) {
+      return false;
+    }
+    
+    Map<Degree, List<Vertex<T>>> groupedVertices1 = groupVerticesByDegree(this);
+    Map<Degree, List<Vertex<S>>> groupedVertices2 = groupVerticesByDegree(other);
+    
+    //#2. A vertex can only be renamed into one with the same degree, so there must be the same number of vertices with a given (in,out)-degree in both graphs.
+    if (!checkGroupedVerticesIsomorphicCompatibility(groupedVertices1, groupedVertices2)) {
+      return false;
+    }
+    
+    //#3. Try out all possible renaming from vertices in the same group
+    //    (i.e. same degree) until it finds one
+    return checkAllPossibleRelabeling(this, other, groupedVertices1, groupedVertices2, new HashMap<Vertex<S>, Vertex<T>>(), new PriorityQueue<Degree>(groupedVertices1.keySet()));
+  }
 }

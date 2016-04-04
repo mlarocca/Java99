@@ -911,4 +911,24 @@ public class SimpleGraphTest {
     Graph<Integer> expectedResult = weightedGraph1.allSpanningTrees().stream().min(GraphComparatorByWeight).get();
     assertNotEquals(expectedResult, weightedGraph1.prim());
   }
+  
+  @Test
+  public void testIsIsomorphic() {
+    //Simple vertex
+    assertTrue(SimpleGraph.fromString("[a-b]").isIsomorphicTo(SimpleGraph.fromString("[f-g]")));
+    //Labels don't matter
+    assertTrue(SimpleGraph.fromString("[a>b]").isIsomorphicTo(SimpleGraph.fromString("[b>a]")));
+    
+    //directed VS undirected
+    assertFalse(SimpleGraph.fromString("[a-b]").isIsomorphicTo(SimpleGraph.fromString("[f>g]")));
+    assertFalse(SimpleGraph.fromString("[a>b]").isIsomorphicTo(SimpleGraph.fromString("[f-g]")));
+    assertFalse(SimpleGraph.fromString("[a>b]").isIsomorphicTo(SimpleGraph.fromString("[a-bg]")));
+    assertFalse(SimpleGraph.fromString("[a>b, b-c]").isIsomorphicTo(SimpleGraph.fromString("[a>c]")));
+
+    //Complex Graph
+    assertTrue(SimpleGraph.fromString("[a>b, b-c]").isIsomorphicTo(SimpleGraph.fromString("[a>c, c-d]")));
+    //Weight doesn't matter
+    assertTrue(SimpleGraph.fromString("[a>b/2, b-c]").isIsomorphicTo(SimpleGraph.fromString("[a>c/44, c-d]")));
+  }
+
 }

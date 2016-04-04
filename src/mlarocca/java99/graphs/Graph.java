@@ -52,7 +52,7 @@ public interface Graph<T> {
   public Set<List<Vertex<T>>> allCycles(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
   public Set<Graph<T>> allSpanningTrees();
   
-  public <R> boolean isIsomorphic(Graph<R> other);
+  public <R> boolean isIsomorphicTo(Graph<R> other);
 }
 
 //Interface for package only methods
