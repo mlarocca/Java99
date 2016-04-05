@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -1015,4 +1016,13 @@ public class SimpleGraphTest {
     assertTrue(SimpleGraph.fromString("[a>b/2, b-c]").isIsomorphicTo(SimpleGraph.fromString("[a>c/44, c-d]")));
   }
 
+  @Test
+  public void testVerticesByDegree() {
+    Graph<String> g = SimpleGraph.fromString("[a>b, b-c, f]");
+    List<Vertex<String>> expectedResult = Arrays.asList("b", "c", "a", "f")
+      .stream()
+      .map(v ->g.getVertex(v).get())
+      .collect(Collectors.toList());
+    assertEquals(expectedResult, g.verticesByDegree());
+  }
 }

@@ -39,6 +39,16 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   private static final Pattern UNDIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*-\\s*(" + VERTEX_REGEX + ")(?:\\s*/" + NUMBER_REGEX + ")?$");
   private static final Pattern VERTEX_PATTERN = Pattern.compile("^" + VERTEX_REGEX + "$");
   
+  /**
+   * Compare vertices based on their degree (v1 < v2 <=> d1 > d2)
+   */
+  private Comparator<Vertex<T>> VERTEX_COMPARATOR_BY_DEGREE = new Comparator<Vertex<T>>() {
+    @Override
+    public int compare(Vertex<T> v1, Vertex<T> v2) {
+      return (inDegree(v2) + outDegree(v2)) - (inDegree(v1) + outDegree(v1));
+    }
+  };
+  
   private static <T> boolean addVertexFromString(String vertexStr, Graph<T> graph) {
     Matcher vertexMatcher = VERTEX_PATTERN.matcher(vertexStr);
     if (vertexMatcher.matches()) {
@@ -195,7 +205,7 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   
   @Override
   public int inDegree(String label) throws NullPointerException, IllegalArgumentException {
-    return getVertex(label).map(v -> getEdgesTo(v).size()).orElseThrow(new Supplier<IllegalArgumentException>() {
+    return getVertex(label).map(v -> inDegree(v)).orElseThrow(new Supplier<IllegalArgumentException>() {
 
       @Override
       public IllegalArgumentException get() {
@@ -212,7 +222,7 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   
   @Override
   public int outDegree(String label) throws NullPointerException, IllegalArgumentException {
-    return getVertex(label).map(v -> getEdgesFrom(v).size()).orElseThrow(new Supplier<IllegalArgumentException>() {
+    return getVertex(label).map(v -> outDegree(v)).orElseThrow(new Supplier<IllegalArgumentException>() {
 
       @Override
       public IllegalArgumentException get() {
@@ -1087,5 +1097,25 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     //#3. Try out all possible renaming from vertices in the same group
     //    (i.e. same degree) until it finds one
     return checkAllPossibleRelabeling(this, other, groupedVertices1, groupedVertices2, new HashMap<Vertex<S>, Vertex<T>>(), new PriorityQueue<Degree>(groupedVertices1.keySet()));
+  }
+
+
+  @Override
+  public List<Vertex<T>> verticesByDegree() {
+    List<Vertex<T>> vertices = new ArrayList<Vertex<T>>(getVertices());
+    vertices.sort(VERTEX_COMPARATOR_BY_DEGREE);
+    return vertices;
+  }
+
+  @Override
+  public List<Vertex<T>> verticesByDepthFrom(String label) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<Vertex<T>> verticesByDepthFrom(Vertex<T> v) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

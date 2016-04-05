@@ -58,6 +58,11 @@ public interface Graph<T> {
   public Set<Graph<T>> allSpanningTrees();
   
   public <R> boolean isIsomorphicTo(Graph<R> other);
+  
+  public List<Vertex<T>> verticesByDegree();
+  
+  public List<Vertex<T>> verticesByDepthFrom(String label);
+  public List<Vertex<T>> verticesByDepthFrom(Vertex<T> v);
 }
 
 //Interface for package only methods
