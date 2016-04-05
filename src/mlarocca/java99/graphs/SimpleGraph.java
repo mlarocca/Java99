@@ -39,6 +39,16 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   private static final Pattern UNDIRECTED_EDGE_PATTERN = Pattern.compile("^(" + VERTEX_REGEX + ")\\s*-\\s*(" + VERTEX_REGEX + ")(?:\\s*/" + NUMBER_REGEX + ")?$");
   private static final Pattern VERTEX_PATTERN = Pattern.compile("^" + VERTEX_REGEX + "$");
   
+  private static Supplier<IllegalArgumentException> VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER = 
+    new Supplier<IllegalArgumentException>() {
+  
+      @Override
+      public IllegalArgumentException get() {
+        return new IllegalArgumentException("Vertex not in graph");
+      }
+      
+    };
+    
   /**
    * Compare vertices based on their degree (v1 < v2 <=> d1 > d2)
    */
@@ -168,7 +178,7 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   @Override
   public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws IllegalArgumentException {
     if (!adjList.containsKey(v)) {
-      throw new IllegalArgumentException("Vertex not in graph");
+      throw VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER.get();
     }
     return adjList.get(v);
   }
@@ -176,7 +186,7 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   @Override
   public List<Edge<T>> getEdgesTo(Vertex<T> v) throws IllegalArgumentException {
     if (!adjList.containsKey(v)) {
-      throw new IllegalArgumentException("Vertex not in graph");
+      throw VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER.get();
     }
     
     List<Edge<T>> edgesToV = getEdges()
@@ -205,14 +215,7 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   
   @Override
   public int inDegree(String label) throws NullPointerException, IllegalArgumentException {
-    return getVertex(label).map(v -> inDegree(v)).orElseThrow(new Supplier<IllegalArgumentException>() {
-
-      @Override
-      public IllegalArgumentException get() {
-        return new IllegalArgumentException("Vertex not in graph");
-      }
-      
-    });
+    return getVertex(label).map(v -> inDegree(v)).orElseThrow(VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER);
   }
 
   @Override
@@ -222,14 +225,7 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   
   @Override
   public int outDegree(String label) throws NullPointerException, IllegalArgumentException {
-    return getVertex(label).map(v -> outDegree(v)).orElseThrow(new Supplier<IllegalArgumentException>() {
-
-      @Override
-      public IllegalArgumentException get() {
-        return new IllegalArgumentException("Vertex not in graph");
-      }
-      
-    });
+    return getVertex(label).map(v -> outDegree(v)).orElseThrow(VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER);
   }
   
   @Override
@@ -1108,14 +1104,31 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   }
 
   @Override
-  public List<Vertex<T>> verticesByDepthFrom(String label) {
-    // TODO Auto-generated method stub
-    return null;
+  public List<Vertex<T>> verticesByDepthFrom(String label) throws NullPointerException, IllegalArgumentException {
+    return getVertex(label).map(v -> verticesByDepthFrom(v)).orElseThrow(VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER);
   }
 
   @Override
-  public List<Vertex<T>> verticesByDepthFrom(Vertex<T> v) {
-    // TODO Auto-generated method stub
-    return null;
+  public List<Vertex<T>> verticesByDepthFrom(Vertex<T> v)  throws NullPointerException, IllegalArgumentException {
+    if (!hasVertex(v)) {
+      throw VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER.get();
+    }
+
+    List<Vertex<T>> reversePath = verticesByDepthFrom(v, new HashSet<Vertex<T>>(),  new ArrayList<Vertex<T>>());
+    Collections.reverse(reversePath);
+    return reversePath;
   }
+  
+  private List<Vertex<T>> verticesByDepthFrom(Vertex<T> v, Set<Vertex<T>> visited, List<Vertex<T>> path) {
+    visited.add(v);
+    path.add(v);
+    for (Vertex<T> u : getNeighbours(v)) {
+      if (!visited.contains(u)) {
+        verticesByDepthFrom(u, visited, path);
+      }
+    }
+    return path;
+  }
+  
+  
 }

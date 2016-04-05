@@ -1016,13 +1016,48 @@ public class SimpleGraphTest {
     assertTrue(SimpleGraph.fromString("[a>b/2, b-c]").isIsomorphicTo(SimpleGraph.fromString("[a>c/44, c-d]")));
   }
 
+  private <T> List<Vertex<T>> listLabels2ListVertex(Graph<T> g, List<String> list) {
+    return list.stream()
+      .map(v -> g.getVertex(v).get())
+      .collect(Collectors.toList());
+  }
+  
   @Test
   public void testVerticesByDegree() {
     Graph<String> g = SimpleGraph.fromString("[a>b, b-c, f]");
-    List<Vertex<String>> expectedResult = Arrays.asList("b", "c", "a", "f")
-      .stream()
-      .map(v ->g.getVertex(v).get())
-      .collect(Collectors.toList());
+    List<Vertex<String>> expectedResult =
+      listLabels2ListVertex(g, Arrays.asList("b", "c", "a", "f"));
+
     assertEquals(expectedResult, g.verticesByDegree());
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testVerticesByDepthFromNullVertex() {
+    graph.verticesByDepthFrom((Vertex<Integer>)null);
+  }
+  
+  @Test(expected = NullPointerException.class)
+  public void testVerticesByDepthFromNullString() {
+    graph.verticesByDepthFrom((Vertex<Integer>)null);
+  }
+  
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testVerticesByDepthFromIllegalVertex() {
+    graph.verticesByDepthFrom(v);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testVerticesByDepthFromIllegalString() {
+    graph.verticesByDepthFrom(vLabel);
+  }
+  
+  @Test
+  public void testVerticesByDepthFrom() {
+    Graph<Double> g = SimpleGraph.fromString("[a-b, b-c, e, a-c, a-d]");
+    List<Vertex<Double>> expectedResult =
+      listLabels2ListVertex(g, Arrays.asList("c", "b", "a", "d"));
+
+    assertEquals(expectedResult, g.verticesByDepthFrom("d"));
   }
 }
