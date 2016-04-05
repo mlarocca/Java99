@@ -26,6 +26,11 @@ public interface Graph<T> {
   public List<Edge<T>> getEdgesTo(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public Optional<Edge<T>> getEdgeBetween(Vertex<T> v, Vertex<T> u) throws NullPointerException, IllegalArgumentException;
 
+  public int inDegree(Vertex<T> v);
+  public int inDegree(String label);
+  public int outDegree(Vertex<T> v);
+  public int outDegree(String label);
+  
   public Edge<T> addEdge(Edge<T> e) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination, double weight) throws IllegalArgumentException;  
   public Edge<T> addEdge(Vertex<T> source, Vertex<T> destination) throws IllegalArgumentException;  

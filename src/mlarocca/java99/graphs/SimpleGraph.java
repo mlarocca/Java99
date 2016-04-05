@@ -165,6 +165,10 @@ public class SimpleGraph<T> implements GraphInternal<T> {
 
   @Override
   public List<Edge<T>> getEdgesTo(Vertex<T> v) throws IllegalArgumentException {
+    if (!adjList.containsKey(v)) {
+      throw new IllegalArgumentException("Vertex not in graph");
+    }
+    
     List<Edge<T>> edgesToV = getEdges()
       .stream()
       .filter(e -> e.getDestination().equals(v))
@@ -183,7 +187,41 @@ public class SimpleGraph<T> implements GraphInternal<T> {
       .filter(e -> e.getDestination().equals(u))
       .findFirst();
   }
+  
+  @Override
+  public int inDegree(Vertex<T> v) throws NullPointerException, IllegalArgumentException {
+    return getEdgesTo(v).size();
+  }
+  
+  @Override
+  public int inDegree(String label) throws NullPointerException, IllegalArgumentException {
+    return getVertex(label).map(v -> getEdgesTo(v).size()).orElseThrow(new Supplier<IllegalArgumentException>() {
 
+      @Override
+      public IllegalArgumentException get() {
+        return new IllegalArgumentException("Vertex not in graph");
+      }
+      
+    });
+  }
+
+  @Override
+  public int outDegree(Vertex<T> v) throws NullPointerException, IllegalArgumentException {
+    return getEdgesFrom(v).size();
+  }
+  
+  @Override
+  public int outDegree(String label) throws NullPointerException, IllegalArgumentException {
+    return getVertex(label).map(v -> getEdgesFrom(v).size()).orElseThrow(new Supplier<IllegalArgumentException>() {
+
+      @Override
+      public IllegalArgumentException get() {
+        return new IllegalArgumentException("Vertex not in graph");
+      }
+      
+    });
+  }
+  
   @Override
   public synchronized Vertex<T> addVertex(String label) throws IllegalArgumentException {
     if (labelToVertex.containsKey(label)) {

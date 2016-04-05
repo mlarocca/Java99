@@ -359,6 +359,129 @@ public class SimpleGraphTest {
   }
   
   @Test
+  public void testGetAdjList() {
+    assertEquals(Arrays.asList(), graph.getEdges());
+    graph.addVertex(vLabel);
+    graph.addVertex(wLabel);
+    graph.addVertex(uLabel);
+    graph.addEdge(eUV);
+    graph.addEdge(eVU);
+    graph.addEdge(eVW);
+
+    assertEquals(Arrays.asList(eVU, eVW), graph.getEdgesFrom(v));
+  }
+
+  @Test
+  public void testGetNeighbours() {
+    assertEquals(Arrays.asList(), graph.getEdges());
+    graph.addVertex(vLabel);
+    graph.addVertex(wLabel);
+    graph.addVertex(uLabel);
+    graph.addEdge(eUV);
+    graph.addEdge(eVU);
+    graph.addEdge(eVW);
+
+    assertEquals(Arrays.asList(u, w), graph.getNeighbours(v));
+  }
+  
+  @Test
+  public void testGetEdgesTo() {
+    assertEquals(Arrays.asList(), graph.getEdges());
+    graph.addVertex(vLabel);
+    graph.addVertex(wLabel);
+    graph.addVertex(uLabel);
+    graph.addEdge(eUV);
+    graph.addEdge(eVU);
+    graph.addEdge(eVW);
+
+    assertEquals(Arrays.asList(eVU), graph.getEdgesTo(u));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testInDegreeNullVertex() {
+    graph.inDegree((Vertex<Integer>)null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testInDegreeNullLabel() {
+    graph.inDegree((String)null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInDegreeInvalidVertex() {
+    graph.inDegree(v);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInDegreeInvalidLabel() {
+    graph.inDegree("xyz");
+  }
+    
+  @Test
+  public void testInDegreeString() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b, a-c, b>d, e>f]");
+    assertEquals(2, g.inDegree("a"));
+    assertEquals(1, g.inDegree("b"));
+    assertEquals(1, g.inDegree("c"));
+    assertEquals(1, g.inDegree("d"));
+    assertEquals(0, g.inDegree("e"));
+    assertEquals(1, g.inDegree("f"));
+  }
+
+  @Test
+  public void testInDegreeVertex() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b, a-c, b>d, e>f]");
+    assertEquals(2, g.inDegree(g.getVertex("a").get()));
+    assertEquals(1, g.inDegree(g.getVertex("b").get()));
+    assertEquals(1, g.inDegree(g.getVertex("c").get()));
+    assertEquals(1, g.inDegree(g.getVertex("d").get()));
+    assertEquals(0, g.inDegree(g.getVertex("e").get()));
+    assertEquals(1, g.inDegree(g.getVertex("f").get()));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testOutDegreeNullVertex() {
+    graph.outDegree((Vertex<Integer>) null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testOutDegreeNullLabel() {
+    graph.outDegree((String) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testOutDegreeInvalidVertex() {
+    graph.outDegree(v);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testOutDegreeInvalidLabel() {
+    graph.outDegree("xyz");
+  }
+
+  @Test
+  public void testOutDegreeString() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b, a-c, b>d, e>f]");
+    assertEquals(2, g.outDegree("a"));
+    assertEquals(2, g.outDegree("b"));
+    assertEquals(1, g.outDegree("c"));
+    assertEquals(0, g.outDegree("d"));
+    assertEquals(1, g.outDegree("e"));
+    assertEquals(0, g.outDegree("f"));
+  }
+
+  @Test
+  public void testOutDegreeVertex() {
+    Graph<Integer> g = SimpleGraph.fromString("[a-b, a-c, b>d, e>f]");
+    assertEquals(2, g.outDegree(g.getVertex("a").get()));
+    assertEquals(2, g.outDegree(g.getVertex("b").get()));
+    assertEquals(1, g.outDegree(g.getVertex("c").get()));
+    assertEquals(0, g.outDegree(g.getVertex("d").get()));
+    assertEquals(1, g.outDegree(g.getVertex("e").get()));
+    assertEquals(0, g.outDegree(g.getVertex("f").get()));
+  }
+
+  @Test
   public void testFromStringDirectedEdge() {
     Graph<Integer> g = SimpleGraph.fromString("[a>b]");
     testEdge(g, "a", "b", false);
@@ -440,46 +563,7 @@ public class SimpleGraphTest {
     disconnectedGraph5.addEdge(eUV);
     disconnectedGraph5.addEdge(eVU);
   }
-  
-  @Test
-  public void testGetAdjList() {
-    assertEquals(Arrays.asList(), graph.getEdges());
-    graph.addVertex(vLabel);
-    graph.addVertex(wLabel);
-    graph.addVertex(uLabel);
-    graph.addEdge(eUV);
-    graph.addEdge(eVU);
-    graph.addEdge(eVW);
 
-    assertEquals(Arrays.asList(eVU, eVW), graph.getEdgesFrom(v));
-  }
-
-  @Test
-  public void testGetNeighbours() {
-    assertEquals(Arrays.asList(), graph.getEdges());
-    graph.addVertex(vLabel);
-    graph.addVertex(wLabel);
-    graph.addVertex(uLabel);
-    graph.addEdge(eUV);
-    graph.addEdge(eVU);
-    graph.addEdge(eVW);
-
-    assertEquals(Arrays.asList(u, w), graph.getNeighbours(v));
-  }
-  
-  @Test
-  public void testGetEdgesTo() {
-    assertEquals(Arrays.asList(), graph.getEdges());
-    graph.addVertex(vLabel);
-    graph.addVertex(wLabel);
-    graph.addVertex(uLabel);
-    graph.addEdge(eUV);
-    graph.addEdge(eVU);
-    graph.addEdge(eVW);
-
-    assertEquals(Arrays.asList(eVU), graph.getEdgesTo(u));
-  }
-  
   @Test
   public void testDfs() {
     Map<Vertex<String>, Integer> exitTimes = connectedGraph1.dfs().exitTimes();
