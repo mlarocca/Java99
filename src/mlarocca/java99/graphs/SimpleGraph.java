@@ -273,10 +273,17 @@ public class SimpleGraph<T> implements GraphInternal<T> {
 
   @Override
   public Vertex<T> getOrAddVertex(String label) {
+    return getOrAddVertex(label, Optional.empty());
+  }
+
+  @Override
+  public Vertex<T> getOrAddVertex(String label, Optional<T> maybeValue) {
     return getVertex(label).orElseGet(new Supplier<Vertex<T>>() {
       @Override
       public Vertex<T> get() {
-        return addVertex(label);
+        return maybeValue
+          .map(value -> addVertex(label, value))
+          .orElse(addVertex(label));
       }
     });
   }
@@ -768,7 +775,11 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   }
   
   @Override
-  public Graph<T> prim() {
+  public Graph<T> prim() throws UnsupportedOperationException {
+    if (!isUndirected()) {
+      throw new UnsupportedOperationException("Prim is defined for undirected graphs only");
+    }
+    
     Graph<T> mst = new SimpleGraph<T>();
     List<Vertex<T>> topOrder = topologicalOrder();
     if (topOrder.isEmpty() || !this.isConnected()) {
@@ -1104,7 +1115,6 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     return checkAllPossibleRelabeling(this, other, groupedVertices1, groupedVertices2, new HashMap<Vertex<S>, Vertex<T>>(), new PriorityQueue<Degree>(groupedVertices1.keySet()));
   }
 
-
   @Override
   public List<Vertex<T>> verticesByDegree() {
     List<Vertex<T>> vertices = new ArrayList<Vertex<T>>(getVertices());
@@ -1163,6 +1173,52 @@ public class SimpleGraph<T> implements GraphInternal<T> {
               getEdgeBetween(v, u).get().getWeight() == e.getWeight());
         });
     });
+  }
+
+  @Override
+  public Graph<T> subGraph(ListVertexRef<T> subset) throws IllegalArgumentException, NullPointerException {
+    return subGraph(subset.get().stream().map(Vertex::getLabel).collect(Collectors.toSet()));
+  }
+  
+  @Override
+  public Graph<T> subGraph(SetVertexRef<T> subset) throws IllegalArgumentException, NullPointerException {
+    return subGraph(subset.get().stream().map(Vertex::getLabel).collect(Collectors.toSet()));
+  }
+  
+  @Override
+  public Graph<T> subGraph(List<String> subset) throws IllegalArgumentException, NullPointerException {
+    return subGraph(new HashSet<String>(subset));
+  }
+  
+  @Override
+  public Graph<T> subGraph(Set<String> subset) throws IllegalArgumentException, NullPointerException {
+    Graph<T> newGraph = new SimpleGraph<T>();
+    
+    subset.stream().forEach(label -> {
+      Vertex<T> v = getVertex(label).orElseThrow(VERTEX_NOT_IN_GRAPH_EXCEPTION_SUPPLIER);
+      Vertex<T> newV = newGraph.getOrAddVertex(label, v.getValue());
+      
+      getEdgesFrom(v).stream().forEach(e -> {
+        Vertex<T> u = e.getDestination();
+        if (subset.contains(u.getLabel())) {
+          Vertex<T> newU = newGraph.getOrAddVertex(u.getLabel(), u.getValue());
+          newGraph.addEdge(newV, newU, e.getWeight());
+        }
+      });
+    });
+    return newGraph;
+  }
+
+  @Override
+  public List<Graph<T>> connectedComponents() throws UnsupportedOperationException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<Graph<T>> stronglyConnectedComponents() {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }

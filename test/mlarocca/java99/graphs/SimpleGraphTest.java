@@ -990,11 +990,10 @@ public class SimpleGraphTest {
     assertEquals(expectedResult, weightedUndirectedGraph.prim());
   }
   
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void testPrimDirected() {
     //Prim doesn't work on certain directed Graphs
-    Graph<Integer> expectedResult = weightedGraph1.allSpanningTrees().stream().min(GraphComparatorByWeight).get();
-    assertNotEquals(expectedResult, weightedGraph1.prim());
+    weightedGraph1.prim();
   }
   
   @Test
@@ -1070,5 +1069,47 @@ public class SimpleGraphTest {
     assertFalse(SimpleGraph.fromString("[a>b]").isUndirected());
     assertFalse(SimpleGraph.fromString("[a>b, b-c]").isUndirected());
     assertFalse(SimpleGraph.fromString("[a>b/1, b>a/2]").isUndirected());
+  }
+  
+  @Test
+  public void testSubgraph() {
+    Graph<Double> g = SimpleGraph.fromString("[a-b, b-c, e, a-c, a>d, c>f]");
+    Set<Edge<Double>> gEdges = new HashSet<>(g.getEdges());
+    //Simple subset
+    Graph<Double> subG1 = g.subGraph(new HashSet<>(Arrays.asList("a")));
+    assertEquals(1, subG1.size());
+    assertEquals(0, subG1.edgesSize());
+    assertTrue(subG1.hasVertex("a"));
+    //More complex subset
+    Graph<Double> subG2 = g.subGraph(new HashSet<>(Arrays.asList("a", "b", "c")));
+    assertEquals(3, subG2.size());
+    assertEquals(6, subG2.edgesSize());
+    assertTrue(subG2.hasVertex("a"));
+    assertTrue(subG2.hasVertex("b"));
+    assertTrue(subG2.hasVertex("c"));
+    for (Edge<Double> e : subG2.getEdges()) {
+      gEdges.contains(e);
+    }
+    //List<String> overloading won't freak out for duplicates
+    Graph<Double> subG3 = g.subGraph(Arrays.asList("a", "a", "b", "a", "c", "b"));
+    assertEquals(3, subG3.size());
+    assertEquals(6, subG3.edgesSize());
+    assertTrue(subG3.hasVertex("a"));
+    assertTrue(subG3.hasVertex("b"));
+    assertTrue(subG3.hasVertex("c"));
+    for (Edge<Double> e : subG3.getEdges()) {
+      gEdges.contains(e);
+    }
+    //Directed vs Undirected
+    Graph<Double> subG4 = g.subGraph(Arrays.asList("c", "f", "a", "d", "c", "d"));
+    assertEquals(4, subG4.size());
+    assertEquals(4, subG4.edgesSize());
+    assertTrue(subG4.hasVertex("a"));
+    assertTrue(subG4.hasVertex("c"));
+    assertTrue(subG4.hasVertex("d"));
+    assertTrue(subG4.hasVertex("f"));
+    for (Edge<Double> e : subG4.getEdges()) {
+      gEdges.contains(e);
+    }
   }
 }
