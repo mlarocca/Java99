@@ -11,6 +11,9 @@ import mlarocca.java99.graphs.data.StructureResult;
 public interface Graph<T> {
   public List<Vertex<T>> getVertices();
   public List<Edge<T>> getEdges();
+
+  public int size();
+  public int edgesSize();
   
   public Vertex<T> addVertex(String label) throws IllegalArgumentException;
   public Vertex<T> addVertex(String label, T value) throws IllegalArgumentException;
@@ -52,6 +55,7 @@ public interface Graph<T> {
   public boolean isConnected();
   public boolean isAcyclic();
   public boolean isTree();
+  public boolean isUndirected();
   
   public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
   public Set<List<Vertex<T>>> allCycles(Vertex<T> source) throws NullPointerException, IllegalArgumentException;

@@ -174,7 +174,16 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     return edges;
   }
   
+  @Override
+  public int size() {
+    return getVertices().size();
+  }
 
+  @Override
+  public int edgesSize() {
+    return getEdges().size();
+  }
+  
   @Override
   public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws IllegalArgumentException {
     if (!adjList.containsKey(v)) {
@@ -1129,6 +1138,31 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     }
     return path;
   }
-  
+
+  /**
+   * Check if a graph is directed or undirected.
+   * We use the same representation for both, with undirected edges represented as
+   * a pair of directed edges.
+   * 
+   * @return True iff the graph in undirected, i.e. for every edge u -> v, there is an
+   *         edge v -> u with the same weight. 
+   */
+  @Override
+  public boolean isUndirected() {
+    //For all vertices...
+    return getVertices().stream().allMatch(v -> {
+      final Set<Vertex<T>> vNeighbours = new HashSet<>(getNeighbours(v));
+
+      //For all in-going edges...
+      return getEdgesTo(v).stream()
+        .allMatch(e -> {
+          Vertex<T> u = e.getSource();
+          //There is an outgoing edge to the same vertex, with the same weight
+          return v.equals(u) || 
+              (vNeighbours.contains(u) &&
+              getEdgeBetween(v, u).get().getWeight() == e.getWeight());
+        });
+    });
+  }
   
 }

@@ -1060,4 +1060,15 @@ public class SimpleGraphTest {
 
     assertEquals(expectedResult, g.verticesByDepthFrom("d"));
   }
+  
+  @Test
+  public void testIsUndirected() {
+    assertTrue(SimpleGraph.fromString("[a-b, b-c, e, a-c, a-d]").isUndirected());
+    assertTrue(SimpleGraph.fromString("[a-b]").isUndirected());
+    assertTrue(SimpleGraph.fromString("[a]").isUndirected());
+    assertTrue(SimpleGraph.fromString("[a>b, b>a]").isUndirected());
+    assertFalse(SimpleGraph.fromString("[a>b]").isUndirected());
+    assertFalse(SimpleGraph.fromString("[a>b, b-c]").isUndirected());
+    assertFalse(SimpleGraph.fromString("[a>b/1, b>a/2]").isUndirected());
+  }
 }
