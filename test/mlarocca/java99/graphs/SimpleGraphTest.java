@@ -1117,5 +1117,78 @@ public class SimpleGraphTest {
   public void testInverse() {
     assertEquals(SimpleGraph.fromString("[a-b, b-c, e, a-c, d>a, f>c]"),
       SimpleGraph.fromString("[a-b, b-c, e, a-c, a>d, c>f]").inverse());
+
+    Graph<Integer> g1 = SimpleGraph.fromString("[a-b, b-c]");
+    assertEquals(g1, g1.inverse());
+
+    Graph<Integer> g2 = SimpleGraph.fromString("[a>b/7, b>c/3.1415]");
+    Graph<Integer> g2I = SimpleGraph.fromString("[b>a/7, c>b/3.1415]");
+    assertEquals(g2I, g2.inverse());
+  }
+  
+  @Test(expected = UnsupportedOperationException.class)
+  public void testConnectedComponentsDirected() {
+    SimpleGraph.fromString("[b>a/7, c>b/3.1415]").connectedComponents();
+  }
+  
+  @Test
+  public void connectedComponents() {
+    //Empty Graph
+    Graph<Long> g0 = new SimpleGraph<>();
+    assertTrue(g0.connectedComponents().isEmpty());
+    
+    //Single vertex graph
+    Graph<Long> g1 = SimpleGraph.fromString("[vertex]");
+    assertTrue(g1.connectedComponents().contains(g1));
+    
+    //Disconnected graph
+    Graph<Byte> g2 = SimpleGraph.fromString("[a-b, b-c, e, a-c, d-f, f-g]");
+    Set<Graph<Byte>> expectedResult2 = new HashSet<>(Arrays.asList(
+          SimpleGraph.fromString("[a-b, b-c, a-c]"),
+          SimpleGraph.fromString("[e]"),
+          SimpleGraph.fromString("[d-f, f-g]")));
+    assertEquals(expectedResult2, g2.connectedComponents());
+
+    //Connected graph
+    Graph<Byte> g3 = SimpleGraph.fromString("[a-b, b-c, c-d, d-f, f-g]");
+    Set<Graph<Byte>> expectedResult3 = new HashSet<>(Arrays.asList(g3));
+    assertEquals(expectedResult3, g3.connectedComponents());  
+  }
+
+  @Test
+  public void stronglyConnectedComponents() {
+    //Empty Graph
+    Graph<Long> g0 = new SimpleGraph<>();
+    assertTrue(g0.stronglyConnectedComponents().isEmpty());
+    
+    //Single vertex graph
+    Graph<Long> g1 = SimpleGraph.fromString("[vertex]");
+    assertTrue(g1.stronglyConnectedComponents().contains(g1));
+    
+    //Disconnected graph
+    Graph<Byte> g2 = SimpleGraph.fromString("[a-b, b-c, e, a-c, d-f, f-g]");
+    Set<Graph<Byte>> expectedResult2 = new HashSet<>(Arrays.asList(
+          SimpleGraph.fromString("[a-b, b-c, a-c]"),
+          SimpleGraph.fromString("[e]"),
+          SimpleGraph.fromString("[d-f, f-g]")));
+    assertEquals(expectedResult2, g2.stronglyConnectedComponents());
+
+    //Disconnected directed graph
+    Graph<Byte> g3 = SimpleGraph.fromString("[a>b, b>c, e, c>a, d>f, f>g, g>d]");
+    Set<Graph<Byte>> expectedResult3 = new HashSet<>(Arrays.asList(
+          SimpleGraph.fromString("[a>b, b>c, c>a]"),
+          SimpleGraph.fromString("[e]"),
+          SimpleGraph.fromString("[d>f, f>g, g>d]")));
+    assertEquals(expectedResult3, g3.stronglyConnectedComponents());
+
+    //Connected undirected graph
+    Graph<Byte> g4 = SimpleGraph.fromString("[a-b, b-c, c-d, d-f, f-g]");
+    Set<Graph<Byte>> expectedResult4 = new HashSet<>(Arrays.asList(g4));
+    assertEquals(expectedResult4, g4.stronglyConnectedComponents());  
+
+    //Connected undirected graph
+    Graph<Byte> g5 = SimpleGraph.fromString("[a>b, b>c, c>d, d>f, f-c, c>a]");
+    Set<Graph<Byte>> expectedResult5 = new HashSet<>(Arrays.asList(g5));
+    assertEquals(expectedResult5, g5.stronglyConnectedComponents());  
   }
 }
