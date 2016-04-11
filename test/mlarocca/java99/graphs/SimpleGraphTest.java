@@ -1112,4 +1112,10 @@ public class SimpleGraphTest {
       gEdges.contains(e);
     }
   }
+  
+  @Test
+  public void testInverse() {
+    assertEquals(SimpleGraph.fromString("[a-b, b-c, e, a-c, d>a, f>c]"),
+      SimpleGraph.fromString("[a-b, b-c, e, a-c, a>d, c>f]").inverse());
+  }
 }
