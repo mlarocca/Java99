@@ -62,6 +62,8 @@ public interface Graph<T> {
   public boolean isTree();
   public boolean isUndirected();
   
+  public Graph<T> inverse();
+  
   public Set<List<Vertex<T>>> allAcyclicPaths(Vertex<T> source, Vertex<T> target) throws NullPointerException, IllegalArgumentException;
   public Set<List<Vertex<T>>> allCycles(Vertex<T> source) throws NullPointerException, IllegalArgumentException;
   public Set<Graph<T>> allSpanningTrees();
@@ -78,8 +80,8 @@ public interface Graph<T> {
   public Graph<T> subGraph(SetVertexRef<T> subset) throws IllegalArgumentException, NullPointerException;
   public Graph<T> subGraph(ListVertexRef<T> subset) throws IllegalArgumentException, NullPointerException;
 
-  public List<Graph<T>> connectedComponents() throws UnsupportedOperationException;
-  public List<Graph<T>> stronglyConnectedComponents();
+  public Set<Graph<T>> connectedComponents() throws UnsupportedOperationException;
+  public Set<Graph<T>> stronglyConnectedComponents();
 }
 
 //Interface for package only methods

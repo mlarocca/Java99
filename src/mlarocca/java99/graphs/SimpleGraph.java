@@ -1208,17 +1208,56 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     });
     return newGraph;
   }
-
+  
   @Override
-  public List<Graph<T>> connectedComponents() throws UnsupportedOperationException {
-    // TODO Auto-generated method stub
-    return null;
+  public Graph<T> inverse() {
+    Graph<T> inverseGraph = new SimpleGraph<T>();
+    getVertices().forEach(v -> inverseGraph.addVertex(v));
+    getEdges().forEach(e -> inverseGraph.addEdge(e.inverse()));
+    return inverseGraph;
+  }
+
+  /** 
+   * Common code for finding connected components (directed graphs) or strongly
+   * connected components (undirected graphs).
+   * The difference is that, in the former case any order will do for the vertices,
+   * in the latter, vertices must be in topological order for the inverse graph.
+   * 
+   * @param sortedVertices
+   * @return A set of graphs: the connected/strongly connected components for this graph.
+   */
+  private Set<Graph<T>> findComponents(List<Vertex<T>> sortedVertices) {
+    Set<Vertex<T>> availableVertices = new HashSet<>(sortedVertices);
+    Set<Graph<T>> result = new HashSet<>();
+    
+    for (Vertex<T> v : getVertices()) {
+      if (availableVertices.contains(v)) {
+        Set<Vertex<T>> connectedComponent = dfs(v).exitTimes().keySet();
+        result.add(subGraph(() -> connectedComponent));
+        availableVertices.removeAll(connectedComponent);
+      }
+    }
+    
+    return result;
+  }
+  
+  @Override
+  public Set<Graph<T>> connectedComponents() throws UnsupportedOperationException {
+    if (!isUndirected()) {
+      throw new UnsupportedOperationException("For directed graphs, check Strongly Connected Components");
+    }
+    
+    return findComponents(getVertices());
   }
 
   @Override
-  public List<Graph<T>> stronglyConnectedComponents() {
-    // TODO Auto-generated method stub
-    return null;
+  public Set<Graph<T>> stronglyConnectedComponents() {
+    if (isUndirected()) {
+      //Connected and Strongly connected components are the same in an undirected graph
+      //But it's a lot more efficient 
+      return connectedComponents();
+    }
+    return findComponents(inverse().topologicalOrder());
   }
   
 }

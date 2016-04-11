@@ -5,6 +5,7 @@ public interface Edge<T> extends Cloneable, Comparable<Edge<T>> {
   public Vertex<T> getDestination();
   public double getWeight();
   public Object clone();
+  public Edge<T> inverse();
 }
 
 interface MutableEdge<T> extends Edge<T> {

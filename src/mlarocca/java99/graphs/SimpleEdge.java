@@ -78,4 +78,9 @@ class SimpleEdge<T> implements MutableEdge<T> {
   public String toString() {
     return String.format("%s -> %s [%s]", getSource(), getDestination(), getWeight());
   }
+
+  @Override
+  public Edge<T> inverse() {
+    return new SimpleEdge<T>(getDestination(), getSource(), getWeight());
+  }
 }
