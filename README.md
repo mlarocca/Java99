@@ -14,3 +14,4 @@
   - ToDo: Welsh-Powell's algorithm.
 * P87 Depth-first order graph traversal [Graph.verticesByDepthFrom()]
 * P88 Connected components. [Graph.connectedComponents(), Graph.stronglyConnectedComponents()]
+* P89 Bipartite graphs. [Graph.isBipartite()]
