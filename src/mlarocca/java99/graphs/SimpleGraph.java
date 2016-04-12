@@ -368,11 +368,23 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   }
   
   @Override
-  public List<Vertex<T>> getNeighbours(Vertex<T> v) throws IllegalArgumentException {
+  public Set<Vertex<T>> getNeighbours(Vertex<T> v) throws IllegalArgumentException {
     return getEdgesFrom(v)
       .parallelStream()
       .map(e -> e.getDestination())
-      .collect(Collectors.toList());
+      .filter(u -> !u.equals(v))
+      .collect(Collectors.toSet());
+  }
+  
+  @Override
+  public Set<Vertex<T>> getAdjacentVertices(Vertex<T> v) throws IllegalArgumentException {
+    Set<Vertex<T>> neighours = getNeighbours(v);
+    neighours.addAll(getEdgesTo(v)
+      .parallelStream()
+      .map(e -> e.getSource())
+      .filter(u -> !u.equals(v))
+      .collect(Collectors.toSet()));
+    return neighours;
   }
   
   @Override
@@ -1292,5 +1304,35 @@ public class SimpleGraph<T> implements GraphInternal<T> {
     }
     return true;
   }
-  
+
+  /**
+   * Welsh-Powell's algorithm
+   * 
+   * @return A map from vertices to colors
+   */
+  @Override
+  public Map<Vertex<T>, Byte> vertexColoring() {
+    Map<Vertex<T>, Byte> colors = new HashMap<>(size());
+    List<Vertex<T>> byDegree = verticesByDegree();
+    byte currentColor = -1;
+    for (Vertex<T> v: byDegree) {
+      if (!colors.containsKey(v)) {
+        currentColor += 1;  
+        final byte col = currentColor;
+        colors.put(v,  currentColor);
+        Set<Vertex<T>> vNeighbours = new HashSet<>(getAdjacentVertices(v));
+        getVertices().stream()
+          .filter(u -> !(colors.containsKey(u) || vNeighbours.contains(v)))
+          .forEach(u -> {
+            if (!getAdjacentVertices(u).stream().anyMatch(w -> {
+             return colors.containsKey(w) && colors.get(w) == col; 
+            })) {
+              colors.put(u, col);
+            }
+          });
+      }        
+    }
+    return colors;
+  }
+
 }

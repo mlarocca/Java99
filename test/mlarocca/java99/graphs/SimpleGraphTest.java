@@ -374,17 +374,50 @@ public class SimpleGraphTest {
 
   @Test
   public void testGetNeighbours() {
-    assertEquals(Arrays.asList(), graph.getEdges());
-    graph.addVertex(vLabel);
-    graph.addVertex(wLabel);
-    graph.addVertex(uLabel);
-    graph.addEdge(eUV);
-    graph.addEdge(eVU);
-    graph.addEdge(eVW);
+    Graph<String> g = SimpleGraph.fromString("[a>b, b-c, d-e, d>b, d-d, e, f-a, f>f]");
+    Set<Vertex<String>> expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("b", "f"))));
+    assertEquals(expected, g.getNeighbours(g.getOrAddVertex("a")));
 
-    assertEquals(Arrays.asList(u, w), graph.getNeighbours(v));
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("c"))));
+    assertEquals(expected, g.getNeighbours(g.getOrAddVertex("b")));
+
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("b", "e"))));
+    assertEquals(expected, g.getNeighbours(g.getOrAddVertex("d")));
+
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("a"))));
+    assertEquals(expected, g.getNeighbours(g.getOrAddVertex("f")));
+
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("a"))));
+    assertTrue(g.getNeighbours(g.getOrAddVertex("")).isEmpty());
   }
   
+
+  @Test
+  public void testGetAdjacentVertices() {
+    Graph<String> g = SimpleGraph.fromString("[a>b, b-c, d-e, d>b, d-d, f-a, f>f]");
+    Set<Vertex<String>> expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("b", "f"))));
+    assertEquals(expected, g.getAdjacentVertices(g.getOrAddVertex("a")));
+
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("a", "c", "d"))));
+    assertEquals(expected, g.getAdjacentVertices(g.getOrAddVertex("b")));
+
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("b", "e"))));
+    assertEquals(expected, g.getAdjacentVertices(g.getOrAddVertex("d")));
+
+    expected = new HashSet<Vertex<String>>(
+        (listLabels2ListVertex(g, Arrays.asList("a"))));
+    assertEquals(expected, g.getAdjacentVertices(g.getOrAddVertex("f")));
+
+  }
+
   @Test
   public void testGetEdgesTo() {
     assertEquals(Arrays.asList(), graph.getEdges());
@@ -548,7 +581,7 @@ public class SimpleGraphTest {
     testEdge(g, "a", "e", false);
     testEdge(g, "d", "b", true);
     assertTrue(g.hasVertex("c"));
-    assertEquals(g.getNeighbours(g.getVertex("c").get()), Arrays.asList());
+    assertEquals(g.getNeighbours(g.getVertex("c").get()), new HashSet<>(Arrays.asList()));
   }
   
   
@@ -1200,5 +1233,15 @@ public class SimpleGraphTest {
     assertTrue(SimpleGraph.fromString("[a>b]").isBipartite());
     assertTrue(SimpleGraph.fromString("[a>b, b>c, c>d, d>f]").isBipartite());
     assertFalse(SimpleGraph.fromString("[a>b, b>c, c>d, d>f, f-c, c>a]").isBipartite());
+  }
+  
+  @Test
+  public void testVertexColoring() {
+    Graph<Object> g = SimpleGraph.fromString("[a-b, b-c, a-c, a-d]");
+    Map<Vertex<Object>, Byte> coloring = g.vertexColoring();
+    assertEquals((Byte)((byte)0), coloring.get(g.getVertex("a").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("b").get()));
+    assertEquals((Byte)((byte)2), coloring.get(g.getVertex("c").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("d").get()));
   }
 }

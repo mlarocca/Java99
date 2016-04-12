@@ -1,6 +1,7 @@
 package mlarocca.java99.graphs;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,7 +30,8 @@ public interface Graph<T> {
   public boolean hasVertex(String label);
   public boolean hasVertex(Vertex<T> v);
 
-  public List<Vertex<T>> getNeighbours(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
+  public Set<Vertex<T>> getNeighbours(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
+  public Set<Vertex<T>> getAdjacentVertices(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public List<Edge<T>> getEdgesFrom(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public List<Edge<T>> getEdgesTo(Vertex<T> v) throws NullPointerException, IllegalArgumentException;
   public Optional<Edge<T>> getEdgeBetween(Vertex<T> v, Vertex<T> u) throws NullPointerException, IllegalArgumentException;
@@ -83,6 +85,8 @@ public interface Graph<T> {
 
   public Set<Graph<T>> connectedComponents() throws UnsupportedOperationException;
   public Set<Graph<T>> stronglyConnectedComponents();
+  
+  public Map<Vertex<T>, Byte> vertexColoring();
 }
 
 //Interface for package only methods

@@ -11,7 +11,7 @@
 * P84 Construct the minimal spanning tree. [Graph.prim()]
 * P85 Graph isomorphism. [Graph.isIsomorphicTo()]
 * P86 Node degree and graph coloration. [Graph.inDegree(), Graph.outDegree(), Graph.verticesByDegree()]
-  - ToDo: Welsh-Powell's algorithm.
+  - Welsh-Powell's algorithm. [Graph.vertexColoring()]
 * P87 Depth-first order graph traversal [Graph.verticesByDepthFrom()]
 * P88 Connected components. [Graph.connectedComponents(), Graph.stronglyConnectedComponents()]
 * P89 Bipartite graphs. [Graph.isBipartite()]
