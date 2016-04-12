@@ -1191,4 +1191,14 @@ public class SimpleGraphTest {
     Set<Graph<Byte>> expectedResult5 = new HashSet<>(Arrays.asList(g5));
     assertEquals(expectedResult5, g5.stronglyConnectedComponents());  
   }
+  
+  @Test
+  public void testIsBipartite() {
+    assertTrue(new SimpleGraph<String>().isBipartite());
+    assertTrue(SimpleGraph.fromString("[a]").isBipartite());
+    assertTrue(SimpleGraph.fromString("[a-b]").isBipartite());
+    assertTrue(SimpleGraph.fromString("[a>b]").isBipartite());
+    assertTrue(SimpleGraph.fromString("[a>b, b>c, c>d, d>f]").isBipartite());
+    assertFalse(SimpleGraph.fromString("[a>b, b>c, c>d, d>f, f-c, c>a]").isBipartite());
+  }
 }

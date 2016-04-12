@@ -61,6 +61,7 @@ public interface Graph<T> {
   public boolean isAcyclic();
   public boolean isTree();
   public boolean isUndirected();
+  public boolean isBipartite();
   
   public Graph<T> inverse();
   

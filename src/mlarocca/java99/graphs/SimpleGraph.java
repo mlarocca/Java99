@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -1258,6 +1259,38 @@ public class SimpleGraph<T> implements GraphInternal<T> {
       return connectedComponents();
     }
     return findComponents(inverse().topologicalOrder());
+  }
+
+  @Override
+  public boolean isBipartite() {
+    Map<Vertex<T>, Boolean> colors = new HashMap<>();
+    
+    for (Vertex<T> v : getVertices()) {
+      if (!colors.containsKey(v)) {
+        colors.put(v, false);
+        //Explicit stack for a dfs
+        Stack<Vertex<T>> stack = new Stack<>();
+        stack.push(v);
+        while (!stack.isEmpty()) {
+          //INVARIANT: u is on the stack, so its color is already set
+          Vertex<T> u = stack.pop();
+          Boolean currentColor = !colors.get(u);
+          for (Vertex<T> w : getNeighbours(u)) {
+            if (colors.containsKey(w)) {
+              if (colors.get(w) != currentColor) {
+                //Found a neighbour with same color as u
+                return false;
+              }
+            } else {
+              //INVARIANT: vertices are added to the stack at most once, before they are painted
+              colors.put(w, currentColor);
+              stack.push(w);
+            }
+          }
+        }
+      }
+    }
+    return true;
   }
   
 }
