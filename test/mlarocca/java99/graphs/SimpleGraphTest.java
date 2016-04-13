@@ -1243,5 +1243,12 @@ public class SimpleGraphTest {
     assertEquals((Byte)((byte)1), coloring.get(g.getVertex("b").get()));
     assertEquals((Byte)((byte)2), coloring.get(g.getVertex("c").get()));
     assertEquals((Byte)((byte)1), coloring.get(g.getVertex("d").get()));
+
+    g = SimpleGraph.fromString("[a-b, a-h, b-d, c-d, d-i, d-k, e-f, e-k, f-g, g-h, g-k, h-i, h-j, h-k, i-j, j-k]");
+    coloring = g.vertexColoring();
+    assertEquals((Byte)((byte)0), coloring.get(g.getVertex("h").get()));
+    assertEquals((Byte)((byte)0), coloring.get(g.getVertex("d").get()));
+    assertEquals((Byte)((byte)0), coloring.get(g.getVertex("e").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("k").get()));
   }
 }
