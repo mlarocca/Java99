@@ -1250,5 +1250,12 @@ public class SimpleGraphTest {
     assertEquals((Byte)((byte)0), coloring.get(g.getVertex("d").get()));
     assertEquals((Byte)((byte)0), coloring.get(g.getVertex("e").get()));
     assertEquals((Byte)((byte)1), coloring.get(g.getVertex("k").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("i").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("a").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("f").get()));
+    assertEquals((Byte)((byte)1), coloring.get(g.getVertex("c").get()));
+    assertEquals((Byte)((byte)2), coloring.get(g.getVertex("g").get()));
+    assertEquals((Byte)((byte)2), coloring.get(g.getVertex("j").get()));
+    assertEquals((Byte)((byte)2), coloring.get(g.getVertex("b").get()));
   }
 }

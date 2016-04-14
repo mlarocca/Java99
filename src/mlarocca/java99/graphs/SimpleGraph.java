@@ -1,5 +1,6 @@
 package mlarocca.java99.graphs;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1313,24 +1314,35 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   @Override
   public Map<Vertex<T>, Byte> vertexColoring() {
     Map<Vertex<T>, Byte> colors = new HashMap<>(size());
-    List<Vertex<T>> byDegree = verticesByDegree();
+    Queue<Vertex<T>> byDegree = new ArrayDeque<>(verticesByDegree());
+    
+    
     byte currentColor = -1;
-    for (Vertex<T> v: byDegree) {
+    while (!byDegree.isEmpty()) {
+      Vertex<T> v = byDegree.poll();
+      
       if (!colors.containsKey(v)) {
+        Set<Vertex<T>> vNeighbours = new HashSet<>(getAdjacentVertices(v));
+        final Queue<Vertex<T>> tmpQueue = new ArrayDeque<>(byDegree.size());
         currentColor += 1;  
         final byte col = currentColor;
-        colors.put(v,  currentColor);
-        Set<Vertex<T>> vNeighbours = new HashSet<>(getAdjacentVertices(v));
-        getVertices().stream()
-          .filter(u -> !(colors.containsKey(u) || vNeighbours.contains(v)))
+        colors.put(v,  currentColor);      
+        
+        byDegree.stream()
           .forEach(u -> {
-            if (!getAdjacentVertices(u).stream().anyMatch(w -> {
-             return colors.containsKey(w) && colors.get(w) == col; 
-            })) {
-              colors.put(u, col);
+            if (colors.containsKey(u) ||
+                vNeighbours.contains(v) ||
+                getAdjacentVertices(u).stream().anyMatch(w -> {
+                  return colors.containsKey(w) && colors.get(w) == col; 
+                })) {
+              tmpQueue.add(u);
+            } else {
+              colors.put(u, col);              
             }
           });
-      }        
+        //Copy the temporary queue over the main one
+        byDegree = tmpQueue;
+      } 
     }
     return colors;
   }
