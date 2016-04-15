@@ -6,11 +6,29 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TreeTest {
-
+  private static Tree<Integer> t1;
+  private static Node<Integer> t2;
+  private static Tree<Integer> leaf;
+  
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    t1 = new Node<>(1, new Node<>(2), new Node<>(3));
+    t2 = new Node<>(1, new Node<>(2), new Node<>(3));
+    leaf = new Leaf<>();
   }
-
+  
+  @Test
+  public void testIsLeaf() {
+    assertTrue(leaf.isLeaf());
+    assertFalse(t1.isLeaf());
+  }
+  
+  @Test
+  public void testIsNode() {
+    assertFalse(leaf.isNode());
+    assertTrue(t1.isNode());
+  }
+  
   @Test
   public void testLeafEquality() {
     assertEquals(new Leaf<Character>(), new Leaf<Character>());
@@ -28,8 +46,6 @@ public class TreeTest {
     //Explicitly created Leaves
     assertEquals(new Node<String>("12"), new Node<String>("12", new Leaf<>(), new Leaf<>()));
     //Deeper trees
-    Tree<Integer> t1 = new Node<>(1, new Node<>(2), new Node<>(3));
-    Node<Integer> t2 = new Node<>(1, new Node<>(2), new Node<>(3));
     assertEquals(t1, t2);
     Tree<Integer> t3 = new Node<>(1, new Node<>(2, new Node<>(4), new Leaf<>()), new Node<>(3));
     assertNotEquals(t1, t3);
@@ -39,5 +55,18 @@ public class TreeTest {
   public void testTreeEquality() {
     assertNotEquals(new Leaf<Integer>(), new Node<Integer>(12));
   }
+  
+  @Test
+  public void testCBalanced() {
+    Tree<Integer> t4 = new Node<>(1, new Node<>(1, new Node<>(1), new Leaf<>()), new Node<>(1));
+    assertEquals(t4, Tree.cBalanced(4, 1));
+    assertEquals(t4.left(), Tree.cBalanced(2, 1));
+    assertEquals(t4.right(), Tree.cBalanced(1, 1));
+    assertEquals(new Leaf<>(), Tree.cBalanced(0, "x"));
+  }
 
+  @Test(expected = IllegalArgumentException.class) 
+  public void testCBalancedFailure() {
+    Tree.cBalanced(-1, 'c');
+  }
 }

@@ -47,23 +47,15 @@ public class Node<T extends Comparable<T>> implements Tree<T> {
   }
 
   @Override
-  public boolean isNode() {
-    return !isLeaf();
-  }
-
-  @Override
   public String toString() {
     return String.format("T(%s, %s, %s)", key().toString(), left().toString(), right().toString());
   }
   
   @Override
-  @SuppressWarnings("unchecked")
   public boolean equals(Object other) {
-    return other != null && 
-      other.getClass().equals(this.getClass()) &&
-      ((Node<T>) other).hashCode() == hashCode();
+    return isEquals(other);
   }
-  
+
   @Override
   public int hashCode() {
     return Arrays.asList(key().hashCode(), left().hashCode(), right().hashCode()).hashCode();

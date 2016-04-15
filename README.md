@@ -2,6 +2,11 @@
 
 ## Strings
 
+## Trees
+
+ - P54 Tree representation.
+ - P55 Construct completely balanced binary trees. [Tree.cBalanced()]
+
 ## Graphs
 
 * P80 [Graph.toString(), SimpleGraph.fromString()]
