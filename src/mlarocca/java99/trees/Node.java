@@ -1,5 +1,7 @@
 package mlarocca.java99.trees;
 
+import java.util.Arrays;
+
 public class Node<T extends Comparable<T>> implements Tree<T> {
 
   private T _key;
@@ -11,10 +13,13 @@ public class Node<T extends Comparable<T>> implements Tree<T> {
       throw new NullPointerException("key");
     }
     _key = key;
+    _left = new Leaf<>();
+    _right = new Leaf<>();
   }
 
   public Node(T key, Tree<T> left, Tree<T> right) {
-    if (key == null || left == null || right == null) {
+    this(key);
+    if (left == null || right == null) {
       throw new NullPointerException("key | left | right");
     }
     _left = left;
@@ -49,5 +54,18 @@ public class Node<T extends Comparable<T>> implements Tree<T> {
   @Override
   public String toString() {
     return String.format("T(%s, %s, %s)", key().toString(), left().toString(), right().toString());
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object other) {
+    return other != null && 
+      other.getClass().equals(this.getClass()) &&
+      ((Node<T>) other).hashCode() == hashCode();
+  }
+  
+  @Override
+  public int hashCode() {
+    return Arrays.asList(key().hashCode(), left().hashCode(), right().hashCode()).hashCode();
   }
 }

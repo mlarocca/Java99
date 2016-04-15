@@ -32,4 +32,16 @@ public final class Leaf<T extends Comparable<T>> implements Tree<T> {
     return ".";
   }
   
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object other) {
+    return other != null && 
+      other.getClass().equals(this.getClass()) &&
+      ((Leaf<T>) other).hashCode() == hashCode();
+  }
+  
+  @Override
+  public int hashCode() {
+    return 0;
+  }
 }
