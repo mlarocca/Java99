@@ -1,23 +1,9 @@
 package mlarocca.java99.trees;
 
+import java.util.Stack;
+
 public interface Tree<T extends Comparable<T>> {
   static final String NEGATIVE_NUMBER_OF_NODES = "The number of nodes must be non-negative";
-  
-  public boolean isLeaf();
-  
-  public default boolean isNode() {
-    return !isLeaf();
-  }
-
-  default boolean isEquals(Object other) {
-    return other != null && 
-      other.getClass().equals(this.getClass()) &&
-      other.hashCode() == hashCode();
-  }
-
-  public T key() throws UnsupportedOperationException;
-  public Tree<T> left() throws UnsupportedOperationException;
-  public Tree<T> right() throws UnsupportedOperationException;
 
   /**
    * Return a complete balanced tree with n nodes, all containing the key passed.
@@ -39,5 +25,48 @@ public interface Tree<T extends Comparable<T>> {
       throw new IllegalArgumentException(NEGATIVE_NUMBER_OF_NODES);
     }
   }
+  
+  public boolean isLeaf();
+  
+  public default boolean isNode() {
+    return !isLeaf();
+  }
 
+  default boolean isEquals(Object other) {
+    return other != null && 
+      other.getClass().equals(this.getClass()) &&
+      other.hashCode() == hashCode();
+  }
+
+  public T key() throws UnsupportedOperationException;
+  public Tree<T> left() throws UnsupportedOperationException;
+  public Tree<T> right() throws UnsupportedOperationException;
+
+  public boolean hasSymmetricStructure();
+}
+
+
+interface TreeInternal<T extends Comparable<T>> extends Tree<T> {
+  public static <R extends Comparable<R>> boolean haveMirrorStructure(
+      Tree<R> t1,
+      Tree<R> t2) {
+    Stack<Tree<R>> stack1 = new Stack<>();
+    Stack<Tree<R>> stack2 = new Stack<>();
+    stack1.add(t1);
+    stack2.add(t2);
+    while (!stack1.isEmpty()) {
+      Tree<R> tree1 = stack1.pop();
+      Tree<R> tree2 = stack2.pop();
+      if (tree1.isLeaf() != tree2.isLeaf()) {
+        return false;
+      }
+      if (tree1.isNode()) {
+        stack1.add(tree1.left());
+        stack2.add(tree2.right());
+        stack1.add(tree1.right());
+        stack2.add(tree2.left());
+      }
+    }
+    return true;
+  }
 }

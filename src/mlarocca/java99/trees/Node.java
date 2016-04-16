@@ -2,7 +2,7 @@ package mlarocca.java99.trees;
 
 import java.util.Arrays;
 
-public class Node<T extends Comparable<T>> implements Tree<T> {
+public class Node<T extends Comparable<T>> implements TreeInternal<T> {
 
   private T _key;
   private Tree<T> _left;
@@ -59,5 +59,10 @@ public class Node<T extends Comparable<T>> implements Tree<T> {
   @Override
   public int hashCode() {
     return Arrays.asList(key().hashCode(), left().hashCode(), right().hashCode()).hashCode();
+  }
+
+  @Override
+  public boolean hasSymmetricStructure() {
+    return TreeInternal.haveMirrorStructure(left(), right());
   }
 }

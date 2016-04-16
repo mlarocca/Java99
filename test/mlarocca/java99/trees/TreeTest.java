@@ -69,4 +69,21 @@ public class TreeTest {
   public void testCBalancedFailure() {
     Tree.cBalanced(-1, 'c');
   }
+  
+  @Test
+  public void testHasSymmetricStructure() {
+    assertTrue(t1.hasSymmetricStructure());
+    assertTrue(t2.hasSymmetricStructure());
+    assertTrue(leaf.hasSymmetricStructure());
+    Tree<Integer> symmetricTree1 = new Node<>(1, t1, t1);
+    Tree<Integer> symmetricTree2 = new Node<>(1, new Node<>(1, new Node<>(1), leaf), new Node<>(1, leaf, new Node<>(1)));
+    Tree<Integer> symmetricTree3 = new Node<>(1, new Node<>(1, new Node<>(1, leaf, t1), leaf), new Node<>(1, leaf, new Node<>(1, t1, leaf)));
+    Tree<Integer> asymmetricTree1 = new Node<>(1, new Node<>(1, new Node<>(1), leaf), new Node<>(1));
+    Tree<Integer> asymmetricTree3 = new Node<>(1, new Node<>(1, new Node<>(1, leaf, t1), leaf), new Node<>(1, leaf, new Node<>(1, leaf, t1)));
+    assertTrue(symmetricTree1.hasSymmetricStructure());
+    assertTrue(symmetricTree2.hasSymmetricStructure());
+    assertTrue(symmetricTree3.hasSymmetricStructure());
+    assertFalse(asymmetricTree1.hasSymmetricStructure());
+    assertFalse(asymmetricTree3.hasSymmetricStructure());
+  }
 }

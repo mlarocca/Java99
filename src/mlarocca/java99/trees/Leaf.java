@@ -1,6 +1,6 @@
 package mlarocca.java99.trees;
 
-public final class Leaf<T extends Comparable<T>> implements Tree<T> {
+public final class Leaf<T extends Comparable<T>> implements TreeInternal<T> {
   
   @Override
   public boolean isLeaf() {
@@ -35,5 +35,10 @@ public final class Leaf<T extends Comparable<T>> implements Tree<T> {
   @Override
   public int hashCode() {
     return 0;
+  }
+  
+  @Override
+  public boolean hasSymmetricStructure() {
+    return true;
   }
 }
