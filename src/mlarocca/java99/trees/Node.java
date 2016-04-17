@@ -2,7 +2,7 @@ package mlarocca.java99.trees;
 
 import java.util.Arrays;
 
-public class Node<T extends Comparable<T>> implements TreeInternal<T> {
+public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
 
   private T _key;
   private Tree<T> _left;

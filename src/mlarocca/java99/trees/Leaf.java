@@ -1,6 +1,6 @@
 package mlarocca.java99.trees;
 
-class Leaf<T extends Comparable<T>> implements TreeInternal<T> {
+class Leaf<T extends Comparable<? super T>> implements TreeInternal<T> {
   
   @Override
   public boolean isLeaf() {

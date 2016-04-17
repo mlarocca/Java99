@@ -1,6 +1,6 @@
 package mlarocca.java99.trees;
 
-class BinarySearchLeaf<T extends Comparable<T>> extends Leaf<T> implements BinarySearchTree<T> {
+class BinarySearchLeaf<T extends Comparable<? super T>> extends Leaf<T> implements BinarySearchTree<T> {
 
   @Override
   public BinarySearchTree<T> addKey(T key) {

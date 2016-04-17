@@ -2,7 +2,7 @@ package mlarocca.java99.trees;
 
 import java.util.Stack;
 
-public interface Tree<T extends Comparable<T>> {
+public interface Tree<T extends Comparable<? super T>> {
   static final String NEGATIVE_NUMBER_OF_NODES = "The number of nodes must be non-negative";
 
   /**
@@ -46,8 +46,8 @@ public interface Tree<T extends Comparable<T>> {
 }
 
 
-interface TreeInternal<T extends Comparable<T>> extends Tree<T> {
-  public static <R extends Comparable<R>> boolean haveMirrorStructure(
+interface TreeInternal<T extends Comparable<? super T>> extends Tree<T> {
+  public static <R extends Comparable<? super R>> boolean haveMirrorStructure(
       Tree<R> t1,
       Tree<R> t2) {
     Stack<Tree<R>> stack1 = new Stack<>();

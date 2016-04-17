@@ -2,6 +2,9 @@ package mlarocca.java99.trees;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.Vector;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,7 +49,24 @@ public class BinarySearchTreeTest {
         throw new Error("Adding value error");
       }
     }
-    assertTrue(Math.abs(right - left) / (double) total <= 100.0 / total);
+    assertTrue(Math.abs(right - left) / (double) total <= 0.02);
   }
-
+    
+  @Test
+  public void testFromList() {
+    Integer[] array = {1, -1, 3, 0};
+    BinarySearchTree<Integer> bstFromList = BinarySearchTree.fromList(Arrays.asList(array));
+    BinarySearchTree<Integer> bstFromArray = BinarySearchTree.fromList(new Vector<Integer>(Arrays.asList(array)));
+    assertEquals(bstFromList, bstFromArray);
+    assertEquals(bstFromArray.key(), (Integer)1);
+    assertEquals(bstFromArray.left().key(), (Integer)(-1));
+    assertEquals(bstFromArray.right().key(), (Integer)3);
+    assertEquals(bstFromArray.left().right().key(), (Integer)0);
+  }
+  
+  @Test
+  public void testHasSymmetricStructure() {
+    assertTrue(BinarySearchTree.fromList(Arrays.asList(5, 3, 18, 1, 4, 12, 21)).hasSymmetricStructure());
+    assertFalse(BinarySearchTree.fromList(Arrays.asList(3, 2, 5, 7, 4)).hasSymmetricStructure());
+  }
 }

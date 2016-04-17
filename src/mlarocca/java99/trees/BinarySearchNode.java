@@ -2,7 +2,7 @@ package mlarocca.java99.trees;
 
 import java.util.Random;
 
-public class BinarySearchNode<T extends Comparable<T>> extends Node<T> implements BinarySearchTree<T> {
+public class BinarySearchNode<T extends Comparable<? super T>> extends Node<T> implements BinarySearchTree<T> {
 
   private static final Random random = new Random();
   
