@@ -25,6 +25,15 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
     _left = left;
     _right = right;
   }
+  
+  /**
+   * Copy constructor.
+   * 
+   * @param original The node to copy from.
+   */
+  public Node(Node<T> original) {
+    this(original.key(), original.left(), original.right());
+  }
 
   @Override
   public T key() {

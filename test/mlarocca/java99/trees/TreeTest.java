@@ -2,6 +2,10 @@ package mlarocca.java99.trees;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -68,6 +72,38 @@ public class TreeTest {
   @Test(expected = IllegalArgumentException.class) 
   public void testCBalancedFailure() {
     Tree.cBalanced(-1, 'c');
+  }
+  
+  @Test
+  public void testAllCompleteBalanced() {
+    Character key = 'x';
+    Node<Character> singleton = new Node<>(key);
+    Leaf<Character> leaf = new Leaf<>();
+    
+    Set<Tree<Character>> set = Tree.allCompleteBalanced(0, 'f');
+    Set<Tree<Character>> expectedSet = new HashSet<>(Arrays.asList(leaf));
+    assertEquals(expectedSet, set);
+    set = Tree.allCompleteBalanced(1, key);
+    expectedSet = new HashSet<>(Arrays.asList(new Node<>(singleton)));
+    assertEquals(expectedSet, set);
+    set = Tree.allCompleteBalanced(2, key);
+    expectedSet = new HashSet<>(Arrays.asList(new Node<>(key, singleton, leaf), new Node<>(key, leaf, singleton)));
+    assertEquals(expectedSet, set);
+    set = Tree.allCompleteBalanced(3, key);
+    expectedSet = new HashSet<>(Arrays.asList(new Node<>(key, singleton, singleton)));
+    assertEquals(expectedSet, set);
+    set = Tree.allCompleteBalanced(4, key);
+    expectedSet = new HashSet<>(Arrays.asList(
+        new Node<>(key, singleton, new Node<>(key, singleton, leaf)),
+        new Node<>(key, singleton, new Node<>(key, leaf, singleton)),
+        new Node<>(key, new Node<>(key, singleton, leaf), singleton),
+        new Node<>(key, new Node<>(key, leaf, singleton), singleton)));
+    assertEquals(expectedSet, set);
+  }
+
+  @Test(expected = IllegalArgumentException.class) 
+  public void testAllCompleteBalancedFailure() {
+    Tree.allCompleteBalanced(-1, 'x');
   }
   
   @Test

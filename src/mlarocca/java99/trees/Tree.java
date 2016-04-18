@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface Tree<T extends Comparable<? super T>> {
@@ -33,37 +31,14 @@ public interface Tree<T extends Comparable<? super T>> {
     }
   }
     
-  public static <R extends Comparable<? super R>> Set<Tree<R>> allCompletelyBalanced(
+  public static <R extends Comparable<? super R>> Set<Tree<R>> allCompleteBalanced(
       int n,
       R key) throws IllegalArgumentException {
     Set<Tree<R>> result;
-    BiFunction<Integer, Integer, Set<Tree<R>>> generateSubTrees = (left, right) -> {
-      Tree<R> node;
-      Set<Tree<R>> res = new HashSet<>();
-      List<Tree<R>> subResultLeft;
-      List<Tree<R>> subResultRight;
-      if (left == right) {
-        subResultLeft = subResultRight = new ArrayList<>(Tree.allCompletelyBalanced(left, key));
-      } else {
-        subResultLeft = new ArrayList<>(Tree.allCompletelyBalanced(left, key)); 
-        subResultRight = new ArrayList<>(Tree.allCompletelyBalanced(right, key));        
-      }
-      for (int i = 0, kL = subResultLeft.size(); i < kL; i++) {
-        for (int j = 0, kR = subResultRight.size(); j < kR; j++) {
-          node = new Node<>(key, subResultLeft.get(i), subResultRight.get(j));
-          res.add(node);
-          if (!subResultLeft.get(i).equals(subResultRight.get(j))) {
-            node = new Node<>(key, subResultRight.get(j), subResultLeft.get(i));
-            res.add(node);
-          }
-        }
-      }
-      return res;
-    };
     
     if (n > 1) {
       int m = (n - 1) / 2;
-      result = generateSubTrees.apply(m, n - 1 - m);
+      result = TreeInternal.generateSubTrees(m, n - 1 - m, key);
     } else if (n == 1) {
       Tree<R> node = new Node<>(key);
       result = new HashSet<>();
@@ -132,4 +107,29 @@ interface TreeInternal<T extends Comparable<? super T>> extends Tree<T> {
       }
       
     };
+    
+  public static <R extends Comparable<? super R>> Set<Tree<R>> generateSubTrees(int left, int right, R key) {
+    Tree<R> node;
+    Set<Tree<R>> res = new HashSet<>();
+    List<Tree<R>> subResultLeft;
+    List<Tree<R>> subResultRight;
+    if (left == right) {
+      subResultLeft = subResultRight = new ArrayList<>(Tree.allCompleteBalanced(left, key));
+    } else {
+      subResultLeft = new ArrayList<>(Tree.allCompleteBalanced(left, key)); 
+      subResultRight = new ArrayList<>(Tree.allCompleteBalanced(right, key));        
+    }
+    for (int i = 0, kL = subResultLeft.size(); i < kL; i++) {
+      for (int j = 0, kR = subResultRight.size(); j < kR; j++) {
+        node = new Node<>(key, subResultLeft.get(i), subResultRight.get(j));
+        res.add(node);
+        if (!subResultLeft.get(i).equals(subResultRight.get(j))) {
+          node = new Node<>(key, subResultRight.get(j), subResultLeft.get(i));
+          res.add(node);
+        }
+      }
+    }
+    return res;
+  };
+  
 }
