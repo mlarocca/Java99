@@ -75,24 +75,27 @@ public class TreeTest {
   }
   
   @Test
-  public void testAllCompleteBalanced() {
+  public void testAllCompleteBalancedTrees() {
     Character key = 'x';
     Node<Character> singleton = new Node<>(key);
-    Leaf<Character> leaf = new Leaf<>();
-    
-    Set<Tree<Character>> set = Tree.allCompleteBalanced(0, 'f');
+    Leaf<Character> leaf = new Leaf<>();    
+    Set<Tree<Character>> set = Tree.allCompleteBalancedTrees(0, 'f');
     Set<Tree<Character>> expectedSet = new HashSet<>(Arrays.asList(leaf));
     assertEquals(expectedSet, set);
-    set = Tree.allCompleteBalanced(1, key);
+    
+    set = Tree.allCompleteBalancedTrees(1, key);
     expectedSet = new HashSet<>(Arrays.asList(new Node<>(singleton)));
     assertEquals(expectedSet, set);
-    set = Tree.allCompleteBalanced(2, key);
+    
+    set = Tree.allCompleteBalancedTrees(2, key);
     expectedSet = new HashSet<>(Arrays.asList(new Node<>(key, singleton, leaf), new Node<>(key, leaf, singleton)));
     assertEquals(expectedSet, set);
-    set = Tree.allCompleteBalanced(3, key);
+    
+    set = Tree.allCompleteBalancedTrees(3, key);
     expectedSet = new HashSet<>(Arrays.asList(new Node<>(key, singleton, singleton)));
     assertEquals(expectedSet, set);
-    set = Tree.allCompleteBalanced(4, key);
+    
+    set = Tree.allCompleteBalancedTrees(4, key);
     expectedSet = new HashSet<>(Arrays.asList(
         new Node<>(key, singleton, new Node<>(key, singleton, leaf)),
         new Node<>(key, singleton, new Node<>(key, leaf, singleton)),
@@ -102,8 +105,8 @@ public class TreeTest {
   }
 
   @Test(expected = IllegalArgumentException.class) 
-  public void testAllCompleteBalancedFailure() {
-    Tree.allCompleteBalanced(-1, 'x');
+  public void testAllCompleteBalancedTreesFailure() {
+    Tree.allCompleteBalancedTrees(-1, 'x');
   }
   
   @Test
@@ -121,5 +124,42 @@ public class TreeTest {
     assertTrue(symmetricTree3.hasSymmetricStructure());
     assertFalse(asymmetricTree1.hasSymmetricStructure());
     assertFalse(asymmetricTree3.hasSymmetricStructure());
+  }
+  
+  @Test
+  public void testAllSymmetricBalancedTrees() {
+    Integer key = 45;
+    Node<Integer> singleton = new Node<>(key);
+    Leaf<Integer> leaf = new Leaf<>();    
+    Set<Tree<Integer>> set = Tree.allSymmetricBalancedTrees(0, key);
+    Set<Tree<Integer>> expectedSet = new HashSet<>(Arrays.asList(leaf));
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allSymmetricBalancedTrees(1, key);
+    expectedSet = new HashSet<>(Arrays.asList(new Node<>(singleton)));
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allSymmetricBalancedTrees(2, key);
+    expectedSet = new HashSet<>();
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allSymmetricBalancedTrees(3, key);
+    expectedSet = new HashSet<>(Arrays.asList(new Node<>(key, singleton, singleton)));
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allSymmetricBalancedTrees(4, key);
+    expectedSet = new HashSet<>();
+    assertEquals(expectedSet, set);    
+
+    set = Tree.allSymmetricBalancedTrees(5, 45);
+    expectedSet = new HashSet<>(Arrays.asList(
+      new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, singleton, leaf)),
+      new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, leaf, singleton))));
+    assertEquals(expectedSet, set);
+  }
+
+  @Test(expected = IllegalArgumentException.class) 
+  public void testAllSymmetricBalancedTreesFailure() {
+    Tree.allSymmetricBalancedTrees(-10, 'x');
   }
 }

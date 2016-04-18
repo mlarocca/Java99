@@ -6,17 +6,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public interface Tree<T extends Comparable<? super T>> {
   static final String NEGATIVE_NUMBER_OF_NODES = "The number of nodes must be non-negative";
 
+  //STATIC METHODS
+  
   /**
    * Return a complete balanced tree with n nodes, all containing the key passed.
    * A complete balanced tree is a tree where the number of nodes in the left subtree
    * and the number of nodes in the right subtree at most differ by 1.
+   * For n==0 it returns a Leaf.
    * 
    * @param n The number of nodes that the tree needs to contain
+   * @param key The key to be inserted in all the nodes.
    * @return A new complete balanced tree
+   * @throws IllegalArgumentException If the number of nodes passed is negative.
    */
   public static <R extends Comparable<R>> Tree<R> cBalanced(int n, R key) throws IllegalArgumentException {
     if (n == 0) {
@@ -31,7 +37,15 @@ public interface Tree<T extends Comparable<? super T>> {
     }
   }
     
-  public static <R extends Comparable<? super R>> Set<Tree<R>> allCompleteBalanced(
+  /**
+   * Return all complete balanced trees with n nodes.
+   * 
+   * @param n The number of nodes that the tree needs to contain
+   * @param key The key to be inserted in all the nodes.
+   * @return A new complete balanced tree
+   * @throws IllegalArgumentException If the number of nodes passed is negative.
+   */
+  public static <R extends Comparable<? super R>> Set<Tree<R>> allCompleteBalancedTrees(
       int n,
       R key) throws IllegalArgumentException {
     Set<Tree<R>> result;
@@ -53,6 +67,17 @@ public interface Tree<T extends Comparable<? super T>> {
     }
     return result;
   }
+  
+  public static <R extends Comparable<? super R>> Set<Tree<R>> allSymmetricBalancedTrees(
+      int n,
+      R key) throws IllegalArgumentException {
+    return allCompleteBalancedTrees(n, key)
+      .stream()
+      .filter(Tree::hasSymmetricStructure)
+      .collect(Collectors.toSet());
+  }
+  
+  // INSTANCE METHODS
   
   public boolean isLeaf();
   
@@ -114,10 +139,10 @@ interface TreeInternal<T extends Comparable<? super T>> extends Tree<T> {
     List<Tree<R>> subResultLeft;
     List<Tree<R>> subResultRight;
     if (left == right) {
-      subResultLeft = subResultRight = new ArrayList<>(Tree.allCompleteBalanced(left, key));
+      subResultLeft = subResultRight = new ArrayList<>(Tree.allCompleteBalancedTrees(left, key));
     } else {
-      subResultLeft = new ArrayList<>(Tree.allCompleteBalanced(left, key)); 
-      subResultRight = new ArrayList<>(Tree.allCompleteBalanced(right, key));        
+      subResultLeft = new ArrayList<>(Tree.allCompleteBalancedTrees(left, key)); 
+      subResultRight = new ArrayList<>(Tree.allCompleteBalancedTrees(right, key));        
     }
     for (int i = 0, kL = subResultLeft.size(); i < kL; i++) {
       for (int j = 0, kR = subResultRight.size(); j < kR; j++) {

@@ -7,6 +7,8 @@
 * P54 Tree representation.
 * P55 Construct completely balanced binary trees. [Tree.cBalanced()]
 * P56 Symmetric binary trees. [tree.hasSymmetricStructure()]
+* P57 Binary search trees (dictionaries). [BinarySearchTree]
+* P58 Generate-and-test paradigm. [Tree.allSymmetricBalancedTrees()]
 
 ## Graphs
 
