@@ -162,4 +162,49 @@ public class TreeTest {
   public void testAllSymmetricBalancedTreesFailure() {
     Tree.allSymmetricBalancedTrees(-10, 'x');
   }
+  
+  @Test
+  public void testAllHeightBalancedTrees() {
+    Integer key = 45;
+    Node<Integer> singleton = new Node<>(key);
+    Leaf<Integer> leaf = new Leaf<>();    
+    Set<Tree<Integer>> set = Tree.allHeightBalancedTrees(0, key);
+    Set<Tree<Integer>> expectedSet = new HashSet<>(Arrays.asList(leaf));
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allHeightBalancedTrees(1, key);
+    expectedSet = new HashSet<>(Arrays.asList(singleton));
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allHeightBalancedTrees(2, key);
+    expectedSet = new HashSet<>(Arrays.asList(
+      new Node<>(key, singleton, singleton),
+      new Node<>(key, leaf, singleton),
+      new Node<>(key, singleton, leaf)));
+    assertEquals(expectedSet, set);
+    
+    set = Tree.allHeightBalancedTrees(3, key);
+    expectedSet = new HashSet<>(Arrays.asList(
+      new Node<>(key, new Node<>(key, singleton, singleton), new Node<>(key, singleton, singleton)),
+      new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, singleton, singleton)),
+      new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, singleton, singleton)),
+      new Node<>(key, new Node<>(key, singleton, singleton), new Node<>(key, leaf, singleton)),
+      new Node<>(key, new Node<>(key, singleton, singleton), new Node<>(key, singleton, leaf)),
+      new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, leaf, singleton)),
+      new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, singleton, leaf)),
+      new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, leaf, singleton)),
+      new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, singleton, leaf)),
+      new Node<>(key, new Node<>(key, singleton, singleton), singleton),
+      new Node<>(key, new Node<>(key, leaf, singleton), singleton),
+      new Node<>(key, new Node<>(key, singleton, leaf), singleton),      
+      new Node<>(key, singleton, new Node<>(key, singleton, singleton)),
+      new Node<>(key, singleton, new Node<>(key, leaf, singleton)),
+      new Node<>(key, singleton, new Node<>(key, singleton, leaf))));
+    assertEquals(expectedSet, set);
+  }
+
+  @Test(expected = IllegalArgumentException.class) 
+  public void testAllHeightBalancedTreesFailure() {
+    Tree.allHeightBalancedTrees(-10, 'x');
+  }
 }

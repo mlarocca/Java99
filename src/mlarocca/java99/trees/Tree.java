@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public interface Tree<T extends Comparable<? super T>> {
   static final String NEGATIVE_NUMBER_OF_NODES = "The number of nodes must be non-negative";
@@ -52,22 +54,29 @@ public interface Tree<T extends Comparable<? super T>> {
     
     if (n > 1) {
       int m = (n - 1) / 2;
-      result = TreeInternal.generateSubTrees(m, n - 1 - m, key);
+      result = TreeInternal.generateSubTrees(m, n - 1 - m, key, (nodes, k) -> allCompleteBalancedTrees(nodes, k));
     } else if (n == 1) {
       Tree<R> node = new Node<>(key);
       result = new HashSet<>();
       result.add(node);
     } else if (n == 0) {
-      Tree<R> node = new Node<>(key);
+      Tree<R> node = new Leaf<>();
       result = new HashSet<>();
-      node = new Leaf<>(); 
       result.add(node);
     } else {  // n < 0
-      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMBER_OF_NODES);
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMER_OF_NODES_MESSAGE);
     }
     return result;
   }
   
+  /**
+   * Returns all symmetric completely balanced trees with exactly n nodes.
+   * 
+   * @param n The number of nodes that the tree needs to contain
+   * @param key The key to be inserted in all the nodes.
+   * @return A new complete balanced tree
+   * @throws IllegalArgumentException If the number of nodes passed is negative.
+   */
   public static <R extends Comparable<? super R>> Set<Tree<R>> allSymmetricBalancedTrees(
       int n,
       R key) throws IllegalArgumentException {
@@ -76,6 +85,52 @@ public interface Tree<T extends Comparable<? super T>> {
       .filter(Tree::hasSymmetricStructure)
       .collect(Collectors.toSet());
   }
+
+  /**
+   * Returns all height balanced trees with a given height.
+   * For height == 0, returns a leaf.
+   * 
+   * Minimum number of nodes for such trees:
+   * | h == 0 -> 0
+   * | h == 1 -> 1
+   * | h  > 1 -> 1 + minNN(h-1) + nimNN(h-2)
+   * 
+   * @param height The height that the tree needs to contain
+   * @param key The key to be inserted in all the nodes.
+   * @return A new complete balanced tree
+   * @throws IllegalArgumentException If the height passed is negative.
+   */
+  public static <R extends Comparable<? super R>> Set<Tree<R>> allHeightBalancedTrees(
+      int height,
+      R key) throws IllegalArgumentException {
+    final Set<Tree<R>> result = new HashSet<>();
+    if (height > 1) {
+      final List<Tree<R>> taller = new ArrayList<>(allHeightBalancedTrees(height - 1, key));
+      final Set<Tree<R>> shorter = allHeightBalancedTrees(height - 2, key);
+      IntStream.range(0, taller.size()).forEach(i -> {
+        Tree<R> tt1 = taller.get(i);
+        result.add(new Node<>(key, tt1, tt1));
+        shorter.stream().forEach(ts -> {
+          result.add(new Node<>(key, tt1, ts));
+          result.add(new Node<>(key, ts, tt1));
+        });
+        IntStream.range(i + 1, taller.size()).forEach(j -> {
+          Tree<R> tt2 = taller.get(j);
+          result.add(new Node<>(key, tt2, tt1));
+          result.add(new Node<>(key, tt1, tt2));    
+        });
+      });
+    } else if (height == 1) {
+      Tree<R> node = new Node<>(key);
+      result.add(node);
+    } else if (height == 0) {
+      Tree<R> node = new Leaf<>();
+      result.add(node);
+    } else {  // n < 0
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMER_OF_NODES_MESSAGE);
+    }
+    return result;
+  } 
   
   // INSTANCE METHODS
   
@@ -123,26 +178,28 @@ interface TreeInternal<T extends Comparable<? super T>> extends Tree<T> {
     return true;
   }
   
+  public static String NEGATIVE_NUMER_OF_NODES_MESSAGE = "Number of nodes must be non negative";
+  public static String NEGATIVE_HEIGHT_MESSAGE = "Height must be non negative";
+  
   public static Supplier<IllegalArgumentException> NEGATIVE_NUMER_OF_NODES = 
     new Supplier<IllegalArgumentException>() {
   
       @Override
       public IllegalArgumentException get() {
-        return new IllegalArgumentException("Number of nodes  must be non negative");
+        return new IllegalArgumentException(NEGATIVE_NUMER_OF_NODES_MESSAGE);
       }
-      
     };
-    
-  public static <R extends Comparable<? super R>> Set<Tree<R>> generateSubTrees(int left, int right, R key) {
+  
+  public static <R extends Comparable<? super R>> Set<Tree<R>> generateSubTrees(int left, int right, R key, BiFunction<Integer, R, Set<Tree<R>>> recursiveBuilder) {
     Tree<R> node;
     Set<Tree<R>> res = new HashSet<>();
     List<Tree<R>> subResultLeft;
     List<Tree<R>> subResultRight;
     if (left == right) {
-      subResultLeft = subResultRight = new ArrayList<>(Tree.allCompleteBalancedTrees(left, key));
+      subResultLeft = subResultRight = new ArrayList<>(recursiveBuilder.apply(left, key));
     } else {
-      subResultLeft = new ArrayList<>(Tree.allCompleteBalancedTrees(left, key)); 
-      subResultRight = new ArrayList<>(Tree.allCompleteBalancedTrees(right, key));        
+      subResultLeft = new ArrayList<>(recursiveBuilder.apply(left, key)); 
+      subResultRight = new ArrayList<>(recursiveBuilder.apply(right, key));        
     }
     for (int i = 0, kL = subResultLeft.size(); i < kL; i++) {
       for (int j = 0, kR = subResultRight.size(); j < kR; j++) {
@@ -156,5 +213,4 @@ interface TreeInternal<T extends Comparable<? super T>> extends Tree<T> {
     }
     return res;
   };
-  
 }
