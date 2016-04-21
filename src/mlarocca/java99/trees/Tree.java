@@ -95,7 +95,7 @@ public interface Tree<T extends Comparable<? super T>> {
    * | h == 1 -> 1
    * | h  > 1 -> 1 + minNN(h-1) + nimNN(h-2)
    * 
-   * @param height The height that the tree needs to contain
+   * @param height The height that the tree needs to have.
    * @param key The key to be inserted in all the nodes.
    * @return A new complete balanced tree
    * @throws IllegalArgumentException If the height passed is negative.
@@ -127,10 +127,46 @@ public interface Tree<T extends Comparable<? super T>> {
       Tree<R> node = new Leaf<>();
       result.add(node);
     } else {  // n < 0
-      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMER_OF_NODES_MESSAGE);
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
     }
     return result;
-  } 
+  }
+  
+  /**
+   * Minimum number of nodes for height balanced trees:
+   * | h == 0 -> 0
+   * | h == 1 -> 1
+   * | h  > 1 -> 1 + minNN(h-1) + nimNN(h-2)
+   * 
+   * @param height The height that the tree needs to have.
+   * @return The minimum number of nodes in a height balanced tree with given height.
+   * @throws IllegalArgumentException If the height passed is negative.
+   */
+  public static int minHbalNodes(int height) throws IllegalArgumentException {
+    if (height > 1) {
+      return 1 + minHbalNodes(height - 1) + minHbalNodes(height - 2);
+    } else if (height == 1) {
+      return 1;
+    } else if (height == 0) {
+      return 0;
+    } else {  // n < 0
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
+    }
+  }
+
+  /**
+   * 
+   * @param height The height that the tree needs to have.
+   * @return The maximum number of nodes in a height balanced tree with given height.
+   * @throws IllegalArgumentException If the height passed is negative.
+   */
+  public static int maxHbalNodes(int height) throws IllegalArgumentException {
+    if (height >= 0) {
+      return (int) Math.pow(2, height) - 1;
+    } else {  // n < 0
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
+    }
+  }
   
   // INSTANCE METHODS
   

@@ -207,4 +207,33 @@ public class TreeTest {
   public void testAllHeightBalancedTreesFailure() {
     Tree.allHeightBalancedTrees(-10, 'x');
   }
+  
+  @Test
+  public void testMinHbalNodes() {
+    assertTrue(Tree.minHbalNodes(0) == 0);
+    assertTrue(Tree.minHbalNodes(1) == 1);
+    assertTrue(Tree.minHbalNodes(2) == 2);
+    assertTrue(Tree.minHbalNodes(3) == 4);
+    assertTrue(Tree.minHbalNodes(4) == 7);
+  }
+  
+  @Test(expected = IllegalArgumentException.class) 
+  public void testMinHbalNodesFailure() {
+    Tree.minHbalNodes(Integer.MIN_VALUE);
+  }
+  
+  @Test
+  public void testMaxHbalNodes() {
+    assertTrue(Tree.maxHbalNodes(0) == 0);
+    assertTrue(Tree.maxHbalNodes(1) == 1);
+    assertTrue(Tree.maxHbalNodes(2) == 3);
+    assertTrue(Tree.maxHbalNodes(3) == 7);
+    assertTrue(Tree.maxHbalNodes(4) == 15);    
+  }
+  
+  @Test(expected = IllegalArgumentException.class) 
+  public void testMaxHbalNodesFailure() {
+    Tree.maxHbalNodes(-100);
+  }
+
 }
