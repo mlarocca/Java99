@@ -93,7 +93,7 @@ public interface Tree<T extends Comparable<? super T>> {
    * Minimum number of nodes for such trees:
    * | h == 0 -> 0
    * | h == 1 -> 1
-   * | h  > 1 -> 1 + minNN(h-1) + nimNN(h-2)
+   * | h  > 1 -> 1 + minNN(h-1) + minNN(h-2)
    * 
    * @param height The height that the tree needs to have.
    * @param key The key to be inserted in all the nodes.
@@ -136,7 +136,7 @@ public interface Tree<T extends Comparable<? super T>> {
    * Minimum number of nodes for height balanced trees:
    * | h == 0 -> 0
    * | h == 1 -> 1
-   * | h  > 1 -> 1 + minNN(h-1) + nimNN(h-2)
+   * | h  > 1 -> 1 + minNN(h-1) + minNN(h-2)
    * 
    * @param height The height that the tree needs to have.
    * @return The minimum number of nodes in a height balanced tree with given height.
@@ -167,6 +167,46 @@ public interface Tree<T extends Comparable<? super T>> {
       throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
     }
   }
+
+  /**
+   * Minimum height for height balanced trees with n nodes.
+   * 
+   * @param n The height that the tree needs to have.
+   * @return The minimum number of nodes in a height balanced tree with given height.
+   * @throws IllegalArgumentException If the height passed is negative.
+   */
+  public static int minHbalHeight(int n) throws IllegalArgumentException {
+    if (n >= 0) {
+      return (int) Math.ceil(Math.log10(n + 1) / Math.log10(2));
+    } else {  // n < 0
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMER_OF_NODES_MESSAGE);
+    }
+  }
+
+  /**
+   * Max height for a height balanced tree with n nodes:
+   * | n == 0 -> 0
+   * | n == 1 -> 1
+   * | n  > 1 -> 1 + minNN(h-1) + minNN(h-2)
+   * 
+   * @param n The height that the tree needs to have.
+   * @return The maximum number of nodes in a height balanced tree with given height.
+   * @throws IllegalArgumentException If the height passed is negative.
+   */
+  public static int maxHbalHeight(int n) throws IllegalArgumentException {
+    if (n > 1) {
+      int m = n - 1;
+      int h1 = maxHbalHeight(m / 2);
+      int k = minHbalNodes(h1);
+      return 1 + Math.min(h1 + 1, maxHbalHeight(m - k));
+    } else if (n == 1) {
+      return 1;
+    } else if (n == 0) {
+      return 0;
+    } else {  // n < 0
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMER_OF_NODES_MESSAGE);
+    }
+  }  
   
   // INSTANCE METHODS
   

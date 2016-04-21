@@ -196,7 +196,7 @@ public class TreeTest {
       new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, singleton, leaf)),
       new Node<>(key, new Node<>(key, singleton, singleton), singleton),
       new Node<>(key, new Node<>(key, leaf, singleton), singleton),
-      new Node<>(key, new Node<>(key, singleton, leaf), singleton),      
+      new Node<>(key, new Node<>(key, singleton, leaf), singleton),     
       new Node<>(key, singleton, new Node<>(key, singleton, singleton)),
       new Node<>(key, singleton, new Node<>(key, leaf, singleton)),
       new Node<>(key, singleton, new Node<>(key, singleton, leaf))));
@@ -210,11 +210,11 @@ public class TreeTest {
   
   @Test
   public void testMinHbalNodes() {
-    assertTrue(Tree.minHbalNodes(0) == 0);
-    assertTrue(Tree.minHbalNodes(1) == 1);
-    assertTrue(Tree.minHbalNodes(2) == 2);
-    assertTrue(Tree.minHbalNodes(3) == 4);
-    assertTrue(Tree.minHbalNodes(4) == 7);
+    assertEquals(Tree.minHbalNodes(0), 0);
+    assertEquals(Tree.minHbalNodes(1), 1);
+    assertEquals(Tree.minHbalNodes(2), 2);
+    assertEquals(Tree.minHbalNodes(3), 4);
+    assertEquals(Tree.minHbalNodes(4), 7);
   }
   
   @Test(expected = IllegalArgumentException.class) 
@@ -224,16 +224,56 @@ public class TreeTest {
   
   @Test
   public void testMaxHbalNodes() {
-    assertTrue(Tree.maxHbalNodes(0) == 0);
-    assertTrue(Tree.maxHbalNodes(1) == 1);
-    assertTrue(Tree.maxHbalNodes(2) == 3);
-    assertTrue(Tree.maxHbalNodes(3) == 7);
-    assertTrue(Tree.maxHbalNodes(4) == 15);    
+    assertEquals(Tree.maxHbalNodes(0), 0);
+    assertEquals(Tree.maxHbalNodes(1), 1);
+    assertEquals(Tree.maxHbalNodes(2), 3);
+    assertEquals(Tree.maxHbalNodes(3), 7);
+    assertEquals(Tree.maxHbalNodes(4), 15);    
   }
   
   @Test(expected = IllegalArgumentException.class) 
   public void testMaxHbalNodesFailure() {
     Tree.maxHbalNodes(-100);
+  }
+
+  @Test
+  public void testMinHbalHeight() {
+    assertEquals(Tree.minHbalHeight(0), 0);
+    assertEquals(Tree.minHbalHeight(1), 1);
+    assertEquals(Tree.minHbalHeight(2), 2);
+    assertEquals(Tree.minHbalHeight(3), 2);
+    assertEquals(Tree.minHbalHeight(4), 3);
+    assertEquals(Tree.minHbalHeight(5), 3);
+    assertEquals(Tree.minHbalHeight(6), 3);
+    assertEquals(Tree.minHbalHeight(7), 3);
+    assertEquals(Tree.minHbalHeight(8), 4);
+  }
+  
+  @Test(expected = IllegalArgumentException.class) 
+  public void testMinHbalHeightFailure() {
+    Tree.minHbalHeight(-1);
+  }
+  
+  @Test
+  public void testMaxHbalHeight() {
+    assertEquals(0, Tree.maxHbalHeight(0));
+    assertEquals(1, Tree.maxHbalHeight(1));
+    assertEquals(2, Tree.maxHbalHeight(2));
+    assertEquals(2, Tree.maxHbalHeight(3));
+    assertEquals(3, Tree.maxHbalHeight(4));    
+    assertEquals(3, Tree.maxHbalHeight(5));    
+    assertEquals(3, Tree.maxHbalHeight(6));    
+    assertEquals(4, Tree.maxHbalHeight(7));    
+    assertEquals(4, Tree.maxHbalHeight(8));    
+    assertEquals(4, Tree.maxHbalHeight(9));    
+    assertEquals(4, Tree.maxHbalHeight(10));    
+    assertEquals(4, Tree.maxHbalHeight(11));    
+    assertEquals(5, Tree.maxHbalHeight(12));    
+  }
+  
+  @Test(expected = IllegalArgumentException.class) 
+  public void testMaxHbalHeightFailure() {
+    Tree.maxHbalHeight(-100);
   }
 
 }
