@@ -208,6 +208,44 @@ public interface Tree<T extends Comparable<? super T>> {
     }
   }  
   
+  /**
+   * Returns all height balanced trees with a given height.
+   * For height == 0, returns a leaf.
+   * 
+   * Minimum number of nodes for such trees:
+   * | h == 0 -> 0
+   * | h == 1 -> 1
+   * | h  > 1 -> 1 + minNN(h-1) + minNN(h-2)
+   * 
+   * @param n The height that the tree needs to have.
+   * @param key The key to be inserted in all the nodes.
+   * @return A new complete balanced tree
+   * @throws IllegalArgumentException If the height passed is negative.
+   */
+  public static <R extends Comparable<? super R>> Set<Tree<R>> allHeightBalancedTreesWithNodes(
+      int n,
+      R key) throws IllegalArgumentException {
+    Set<Tree<R>> result;
+    if (n > 1) {
+      result = IntStream.rangeClosed(minHbalHeight(n), maxHbalHeight(n))
+        .mapToObj(h -> allHeightBalancedTrees(h, key))
+        .flatMap(s -> s.stream())
+        .filter(t -> t.size() == n)
+        .collect(Collectors.toSet());
+    } else if (n == 1) {
+      result = new HashSet<>();
+      Tree<R> node = new Node<>(key);
+      result.add(node);
+    } else if (n == 0) {
+      result = new HashSet<>();
+      Tree<R> node = new Leaf<>();
+      result.add(node);
+    } else {  // n < 0
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
+    }
+    return result;
+  }
+
   // INSTANCE METHODS
   
   public boolean isLeaf();
@@ -216,6 +254,9 @@ public interface Tree<T extends Comparable<? super T>> {
     return !isLeaf();
   }
 
+  public int size();
+  public int height();
+  
   default boolean isEquals(Object other) {
     return other != null && 
       other.getClass().equals(this.getClass()) &&

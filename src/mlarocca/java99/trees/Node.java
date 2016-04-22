@@ -1,12 +1,12 @@
 package mlarocca.java99.trees;
 
-import java.util.Arrays;
-
 public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
 
   private T _key;
   private Tree<T> _left;
   private Tree<T> _right;
+  private Integer _size;
+  private Integer _height;
   
   public Node(T key) throws NullPointerException {
     if (key == null) {
@@ -54,7 +54,25 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   public boolean isLeaf() throws UnsupportedOperationException {
     return false;
   }
-
+  
+  @Override
+  public int size() {
+    //Lazy evaluate _size. This only works as long as Nodes are immutable.
+    if (_size == null) {
+      _size = 1 + left().size() + right().size();
+    }
+    return _size;
+  }
+  
+  @Override
+  public int height() {
+    //Lazy evaluate _size. This only works as long as Nodes are immutable.
+    if (_height == null) {
+      _height = 1 + Math.max(left().height(), right().height());
+    }
+    return _height;
+  }
+  
   @Override
   public String toString() {
     return String.format("T(%s, %s, %s)", key().toString(), left().toString(), right().toString());
@@ -67,7 +85,7 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
 
   @Override
   public int hashCode() {
-    return Arrays.asList(key().hashCode(), left().hashCode(), right().hashCode()).hashCode();
+    return String.format("%d[%s]%d,%d", key().hashCode(), this.getClass(), left().hashCode(), right().hashCode()).hashCode();
   }
 
   @Override

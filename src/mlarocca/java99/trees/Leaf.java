@@ -23,6 +23,16 @@ class Leaf<T extends Comparable<? super T>> implements TreeInternal<T> {
   }
 
   @Override
+  public int size() {
+    return 0;
+  }
+
+  @Override
+  public int height() {
+    return 0;
+  }
+  
+  @Override
   public String toString() {
     return ".";
   }

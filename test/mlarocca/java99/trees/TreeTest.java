@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.BeforeClass;
@@ -34,6 +35,24 @@ public class TreeTest {
   }
   
   @Test
+  public void testSize() {
+    assertEquals(0, leaf.size());
+    assertEquals(1, new Node<>(1).size());
+    assertEquals(2, new Node<>(1, new Node<>(2), leaf).size());
+    assertEquals(3, t1.size());
+    assertEquals(7, new Node<>('x', new Node<>('a', new Node<>('4'), new Node<>('4')), new Node<>('b', new Node<>('4'), new Node<>('4'))).size());
+  }
+
+  @Test
+  public void testHeight() {
+    assertEquals(0, leaf.height());
+    assertEquals(1, new Node<>(1).height());
+    assertEquals(2, new Node<>(1, new Node<>(2), leaf).height());
+    assertEquals(2, t1.height());
+    assertEquals(3, new Node<>('x', new Node<>('a', new Node<>('4'), new Node<>('4')), new Node<>('b', new Node<>('4'), new Node<>('4'))).height());
+  }
+  
+  @Test
   public void testLeafEquality() {
     assertEquals(new Leaf<Character>(), new Leaf<Character>());
     assertEquals(new Leaf<Integer>(), new Leaf<Double>());
@@ -57,7 +76,32 @@ public class TreeTest {
   
   @Test
   public void testTreeEquality() {
+    String key = "1123432";
+    Leaf<String> leaf = new Leaf<>();
+    Tree<String> singleton = new Node<>(key);
+    
     assertNotEquals(new Leaf<Integer>(), new Node<Integer>(12));
+   
+    List<Tree<String>> list = Arrays.asList(
+        singleton,
+        new Node<>(key, singleton, singleton),
+        new Node<>(key, new Node<>(key, singleton, singleton), new Node<>(key, singleton, singleton)),
+        new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, singleton, singleton)),
+        new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, singleton, singleton)),
+        new Node<>(key, new Node<>(key, singleton, singleton), new Node<>(key, leaf, singleton)),
+        new Node<>(key, new Node<>(key, singleton, singleton), new Node<>(key, singleton, leaf)),
+        new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, leaf, singleton)),
+        new Node<>(key, new Node<>(key, leaf, singleton), new Node<>(key, singleton, leaf)),
+        new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, leaf, singleton)),
+        new Node<>(key, new Node<>(key, singleton, leaf), new Node<>(key, singleton, leaf)),
+        new Node<>(key, new Node<>(key, singleton, singleton), singleton),
+        new Node<>(key, new Node<>(key, leaf, singleton), singleton),
+        new Node<>(key, new Node<>(key, singleton, leaf), singleton),     
+        new Node<>(key, singleton, new Node<>(key, singleton, singleton)),
+        new Node<>(key, singleton, new Node<>(key, leaf, singleton)),
+        new Node<>(key, singleton, new Node<>(key, singleton, leaf)));
+    //A list of trees without duplicates should have the same size of the set created from it.
+    assertEquals(list.size(), new HashSet<>(list).size());
   }
   
   @Test
@@ -275,5 +319,35 @@ public class TreeTest {
   public void testMaxHbalHeightFailure() {
     Tree.maxHbalHeight(-100);
   }
+  
+  @Test
+  public void testAllHeightBalancedTreesWithNodes() {
+    Set<Tree<Integer>> expected;
+    Integer key = 1;
+    expected = new HashSet<>(Arrays.asList(leaf));
+    assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(0, key));
+    expected = new HashSet<>(Arrays.asList(new Node<>(key)));
+    assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(1, key));
+    expected = new HashSet<>(Arrays.asList(
+        new Node<>(key, new Node<>(key), leaf),
+        new Node<>(key, leaf, new Node<>(key))));
+    assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(2, key));
+    expected = new HashSet<>(Arrays.asList(
+        new Node<>(key, new Node<>(key), new Node<>(key))));
+    assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(3, key));
 
+    expected = new HashSet<>(Arrays.asList(new Node<>(key, new Node<>(key, new Node<>(key), leaf), new Node<>(key)),
+        new Node<>(key, new Node<>(key, leaf, new Node<>(key)), new Node<>(key)),
+        new Node<>(key, new Node<>(key), new Node<>(key, new Node<>(key), leaf)),
+        new Node<>(key, new Node<>(key), new Node<>(key, leaf, new Node<>(key)))));
+    assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(4, key));
+
+    assertEquals(1553, Tree.allHeightBalancedTreesWithNodes(15, key).size()); 
+  }
+  
+  @Test(expected = IllegalArgumentException.class) 
+  public void testAllHeightBalancedTreesWithNodesFailure() {
+    Tree.allHeightBalancedTreesWithNodes(-10, 3);
+  }
+  
 }
