@@ -51,4 +51,15 @@ class Leaf<T extends Comparable<? super T>> implements TreeInternal<T> {
   public boolean hasSymmetricStructure() {
     return true;
   }
+  
+  @Override
+  public boolean isLeafNode() {
+    return false;
+  }
+  
+  @Override
+  public int leavesCount() {
+    return 0;
+  }
+
 }

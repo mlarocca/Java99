@@ -92,4 +92,14 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   public boolean hasSymmetricStructure() {
     return TreeInternal.haveMirrorStructure(left(), right());
   }
+  
+  @Override
+  public boolean isLeafNode() {
+    return left().isLeaf() && right().isLeaf();
+  }
+  
+  @Override
+  public int leavesCount() {
+    return isLeafNode() ? 1 : left().leavesCount() + right().leavesCount();
+  }
 }

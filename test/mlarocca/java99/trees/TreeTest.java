@@ -342,12 +342,22 @@ public class TreeTest {
         new Node<>(key, new Node<>(key), new Node<>(key, leaf, new Node<>(key)))));
     assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(4, key));
 
-    assertEquals(1553, Tree.allHeightBalancedTreesWithNodes(15, key).size()); 
+    //assertEquals(1553, Tree.allHeightBalancedTreesWithNodes(15, key).size()); 
   }
   
   @Test(expected = IllegalArgumentException.class) 
   public void testAllHeightBalancedTreesWithNodesFailure() {
     Tree.allHeightBalancedTreesWithNodes(-10, 3);
+  }
+  
+  @Test
+  public void testLeavesCount() {
+    assertEquals(0, leaf.leavesCount());
+    assertEquals(1, new Node<Integer>(11).leavesCount());
+    assertEquals(1, new Node<Integer>(11, new Node<Integer>(22), leaf).leavesCount());
+    assertEquals(1, new Node<Integer>(11, leaf, new Node<Integer>(22)).leavesCount());
+    assertEquals(2, t1.leavesCount());
+    assertEquals(4, new Node<Integer>(0, t1, t1).leavesCount());
   }
   
 }

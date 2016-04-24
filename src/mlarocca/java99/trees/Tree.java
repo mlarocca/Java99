@@ -268,6 +268,9 @@ public interface Tree<T extends Comparable<? super T>> {
   public Tree<T> right() throws UnsupportedOperationException;
 
   public boolean hasSymmetricStructure();
+  
+  public boolean isLeafNode();
+  public int leavesCount();
 }
 
 
