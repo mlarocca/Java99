@@ -1,5 +1,8 @@
 package mlarocca.java99.trees;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class Leaf<T extends Comparable<? super T>> implements TreeInternal<T> {
   
   @Override
@@ -60,6 +63,21 @@ class Leaf<T extends Comparable<? super T>> implements TreeInternal<T> {
   @Override
   public int leavesCount() {
     return 0;
+  }
+  
+  @Override
+  public List<Tree<T>> preOrder() {
+    return new ArrayList<>();
+  }
+  
+  @Override
+  public List<Tree<T>> postOrder() {
+    return new ArrayList<>();
+  }
+  
+  @Override
+  public List<Tree<T>> inOrder() {
+    return new ArrayList<>();
   }
 
 }

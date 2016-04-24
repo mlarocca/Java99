@@ -271,6 +271,10 @@ public interface Tree<T extends Comparable<? super T>> {
   
   public boolean isLeafNode();
   public int leavesCount();
+  
+  public List<Tree<T>> preOrder();
+  public List<Tree<T>> postOrder();
+  public List<Tree<T>> inOrder();
 }
 
 

@@ -1,5 +1,9 @@
 package mlarocca.java99.trees;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
 
   private T _key;
@@ -101,5 +105,30 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   @Override
   public int leavesCount() {
     return isLeafNode() ? 1 : left().leavesCount() + right().leavesCount();
+  }
+  
+  @Override
+  public List<Tree<T>> preOrder() {
+    List<Tree<T>> result = new ArrayList<>(Arrays.asList(this));
+    result.addAll(left().preOrder());
+    result.addAll(right().preOrder());
+    return result;
+  }
+
+  
+  @Override
+  public List<Tree<T>> postOrder() {
+    List<Tree<T>> result = left().postOrder();
+    result.addAll(right().postOrder());
+    result.add(this);
+    return result;
+  }
+  
+  @Override
+  public List<Tree<T>> inOrder() {
+    List<Tree<T>> result = left().inOrder();
+    result.add(this);
+    result.addAll(right().inOrder());
+    return result;
   }
 }

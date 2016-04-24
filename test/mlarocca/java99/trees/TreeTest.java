@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,12 +14,14 @@ import org.junit.Test;
 public class TreeTest {
   private static Tree<Integer> t1;
   private static Node<Integer> t2;
+  private static Node<Integer> t3;
   private static Tree<Integer> leaf;
   
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     t1 = new Node<>(1, new Node<>(2), new Node<>(3));
     t2 = new Node<>(1, new Node<>(2), new Node<>(3));
+    t3 = new Node<>(1, new Node<>(2, new Node<>(3), new Node<>(4)), new Node<>(5));
     leaf = new Leaf<>();
   }
   
@@ -358,6 +361,33 @@ public class TreeTest {
     assertEquals(1, new Node<Integer>(11, leaf, new Node<Integer>(22)).leavesCount());
     assertEquals(2, t1.leavesCount());
     assertEquals(4, new Node<Integer>(0, t1, t1).leavesCount());
+  }
+  
+  @Test
+  public void testPreOrder() {
+    List<Tree<Integer>> expected = Arrays.asList();
+    assertEquals(expected, leaf.preOrder());
+    
+    List<Integer> expectedKeys = Arrays.asList(1, 2, 3, 4, 5);
+    assertEquals(expectedKeys, t3.preOrder().stream().map(Tree::key).collect(Collectors.toList()));
+  }
+
+  @Test
+  public void testInOrder() {
+    List<Tree<Integer>> expected = Arrays.asList();
+    assertEquals(expected, leaf.inOrder());
+    
+    List<Integer> expectedKeys = Arrays.asList(3, 2, 4, 1, 5);
+    assertEquals(expectedKeys, t3.inOrder().stream().map(Tree::key).collect(Collectors.toList()));
+  }
+
+  @Test
+  public void testPostOrder() {
+    List<Tree<Integer>> expected = Arrays.asList();
+    assertEquals(expected, leaf.postOrder());
+    
+    List<Integer> expectedKeys = Arrays.asList(3, 4, 2, 5, 1);
+    assertEquals(expectedKeys, t3.postOrder().stream().map(Tree::key).collect(Collectors.toList()));
   }
   
 }
