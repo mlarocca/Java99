@@ -7,7 +7,7 @@ public class BinarySearchNode<T extends Comparable<? super T>> extends Node<T> i
   private static final Random random = new Random();
   
   public BinarySearchNode(T key) throws NullPointerException {
-    super(key, new BinarySearchLeaf<T>(), new BinarySearchLeaf<T>());
+    super(key, new BinarySearchNil<T>(), new BinarySearchNil<T>());
   }
 
   private BinarySearchNode(T key, BinarySearchTree<T> left, BinarySearchTree<T> right) throws NullPointerException {

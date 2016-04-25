@@ -15,50 +15,50 @@ public class TreeTest {
   private static Tree<Integer> t1;
   private static Node<Integer> t2;
   private static Node<Integer> t3;
-  private static Tree<Integer> leaf;
+  private static Tree<Integer> nil;
   
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     t1 = new Node<>(1, new Node<>(2), new Node<>(3));
     t2 = new Node<>(1, new Node<>(2), new Node<>(3));
     t3 = new Node<>(1, new Node<>(2, new Node<>(3), new Node<>(4)), new Node<>(5));
-    leaf = new Leaf<>();
+    nil = new Nil<>();
   }
   
   @Test
   public void testIsLeaf() {
-    assertTrue(leaf.isLeaf());
-    assertFalse(t1.isLeaf());
+    assertTrue(nil.isNil());
+    assertFalse(t1.isNil());
   }
   
   @Test
   public void testIsNode() {
-    assertFalse(leaf.isNode());
+    assertFalse(nil.isNode());
     assertTrue(t1.isNode());
   }
   
   @Test
   public void testSize() {
-    assertEquals(0, leaf.size());
+    assertEquals(0, nil.size());
     assertEquals(1, new Node<>(1).size());
-    assertEquals(2, new Node<>(1, new Node<>(2), leaf).size());
+    assertEquals(2, new Node<>(1, new Node<>(2), nil).size());
     assertEquals(3, t1.size());
     assertEquals(7, new Node<>('x', new Node<>('a', new Node<>('4'), new Node<>('4')), new Node<>('b', new Node<>('4'), new Node<>('4'))).size());
   }
 
   @Test
   public void testHeight() {
-    assertEquals(0, leaf.height());
+    assertEquals(0, nil.height());
     assertEquals(1, new Node<>(1).height());
-    assertEquals(2, new Node<>(1, new Node<>(2), leaf).height());
+    assertEquals(2, new Node<>(1, new Node<>(2), nil).height());
     assertEquals(2, t1.height());
     assertEquals(3, new Node<>('x', new Node<>('a', new Node<>('4'), new Node<>('4')), new Node<>('b', new Node<>('4'), new Node<>('4'))).height());
   }
   
   @Test
   public void testLeafEquality() {
-    assertEquals(new Leaf<Character>(), new Leaf<Character>());
-    assertEquals(new Leaf<Integer>(), new Leaf<Double>());
+    assertEquals(new Nil<Character>(), new Nil<Character>());
+    assertEquals(new Nil<Integer>(), new Nil<Double>());
   }
   
   @Test
@@ -70,20 +70,20 @@ public class TreeTest {
     assertNotEquals(new Node<String>("12"), new Node<Integer>(12));
     assertEquals(new Node<Integer>(12), new Node<Byte>((byte)12));
     //Explicitly created Leaves
-    assertEquals(new Node<String>("12"), new Node<String>("12", new Leaf<>(), new Leaf<>()));
+    assertEquals(new Node<String>("12"), new Node<String>("12", new Nil<>(), new Nil<>()));
     //Deeper trees
     assertEquals(t1, t2);
-    Tree<Integer> t3 = new Node<>(1, new Node<>(2, new Node<>(4), new Leaf<>()), new Node<>(3));
+    Tree<Integer> t3 = new Node<>(1, new Node<>(2, new Node<>(4), new Nil<>()), new Node<>(3));
     assertNotEquals(t1, t3);
   }
   
   @Test
   public void testTreeEquality() {
     String key = "1123432";
-    Leaf<String> leaf = new Leaf<>();
+    Nil<String> leaf = new Nil<>();
     Tree<String> singleton = new Node<>(key);
     
-    assertNotEquals(new Leaf<Integer>(), new Node<Integer>(12));
+    assertNotEquals(new Nil<Integer>(), new Node<Integer>(12));
    
     List<Tree<String>> list = Arrays.asList(
         singleton,
@@ -109,11 +109,11 @@ public class TreeTest {
   
   @Test
   public void testCBalanced() {
-    Tree<Integer> t4 = new Node<>(1, new Node<>(1, new Node<>(1), new Leaf<>()), new Node<>(1));
+    Tree<Integer> t4 = new Node<>(1, new Node<>(1, new Node<>(1), new Nil<>()), new Node<>(1));
     assertEquals(t4, Tree.cBalanced(4, 1));
     assertEquals(t4.left(), Tree.cBalanced(2, 1));
     assertEquals(t4.right(), Tree.cBalanced(1, 1));
-    assertEquals(new Leaf<>(), Tree.cBalanced(0, "x"));
+    assertEquals(new Nil<>(), Tree.cBalanced(0, "x"));
   }
 
   @Test(expected = IllegalArgumentException.class) 
@@ -125,7 +125,7 @@ public class TreeTest {
   public void testAllCompleteBalancedTrees() {
     Character key = 'x';
     Node<Character> singleton = new Node<>(key);
-    Leaf<Character> leaf = new Leaf<>();    
+    Nil<Character> leaf = new Nil<>();    
     Set<Tree<Character>> set = Tree.allCompleteBalancedTrees(0, 'f');
     Set<Tree<Character>> expectedSet = new HashSet<>(Arrays.asList(leaf));
     assertEquals(expectedSet, set);
@@ -160,12 +160,12 @@ public class TreeTest {
   public void testHasSymmetricStructure() {
     assertTrue(t1.hasSymmetricStructure());
     assertTrue(t2.hasSymmetricStructure());
-    assertTrue(leaf.hasSymmetricStructure());
+    assertTrue(nil.hasSymmetricStructure());
     Tree<Integer> symmetricTree1 = new Node<>(1, t1, t1);
-    Tree<Integer> symmetricTree2 = new Node<>(1, new Node<>(1, new Node<>(1), leaf), new Node<>(1, leaf, new Node<>(1)));
-    Tree<Integer> symmetricTree3 = new Node<>(1, new Node<>(1, new Node<>(1, leaf, t1), leaf), new Node<>(1, leaf, new Node<>(1, t1, leaf)));
-    Tree<Integer> asymmetricTree1 = new Node<>(1, new Node<>(1, new Node<>(1), leaf), new Node<>(1));
-    Tree<Integer> asymmetricTree3 = new Node<>(1, new Node<>(1, new Node<>(1, leaf, t1), leaf), new Node<>(1, leaf, new Node<>(1, leaf, t1)));
+    Tree<Integer> symmetricTree2 = new Node<>(1, new Node<>(1, new Node<>(1), nil), new Node<>(1, nil, new Node<>(1)));
+    Tree<Integer> symmetricTree3 = new Node<>(1, new Node<>(1, new Node<>(1, nil, t1), nil), new Node<>(1, nil, new Node<>(1, t1, nil)));
+    Tree<Integer> asymmetricTree1 = new Node<>(1, new Node<>(1, new Node<>(1), nil), new Node<>(1));
+    Tree<Integer> asymmetricTree3 = new Node<>(1, new Node<>(1, new Node<>(1, nil, t1), nil), new Node<>(1, nil, new Node<>(1, nil, t1)));
     assertTrue(symmetricTree1.hasSymmetricStructure());
     assertTrue(symmetricTree2.hasSymmetricStructure());
     assertTrue(symmetricTree3.hasSymmetricStructure());
@@ -177,7 +177,7 @@ public class TreeTest {
   public void testAllSymmetricBalancedTrees() {
     Integer key = 45;
     Node<Integer> singleton = new Node<>(key);
-    Leaf<Integer> leaf = new Leaf<>();    
+    Nil<Integer> leaf = new Nil<>();    
     Set<Tree<Integer>> set = Tree.allSymmetricBalancedTrees(0, key);
     Set<Tree<Integer>> expectedSet = new HashSet<>(Arrays.asList(leaf));
     assertEquals(expectedSet, set);
@@ -214,7 +214,7 @@ public class TreeTest {
   public void testAllHeightBalancedTrees() {
     Integer key = 45;
     Node<Integer> singleton = new Node<>(key);
-    Leaf<Integer> leaf = new Leaf<>();    
+    Nil<Integer> leaf = new Nil<>();    
     Set<Tree<Integer>> set = Tree.allHeightBalancedTrees(0, key);
     Set<Tree<Integer>> expectedSet = new HashSet<>(Arrays.asList(leaf));
     assertEquals(expectedSet, set);
@@ -327,22 +327,22 @@ public class TreeTest {
   public void testAllHeightBalancedTreesWithNodes() {
     Set<Tree<Integer>> expected;
     Integer key = 1;
-    expected = new HashSet<>(Arrays.asList(leaf));
+    expected = new HashSet<>(Arrays.asList(nil));
     assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(0, key));
     expected = new HashSet<>(Arrays.asList(new Node<>(key)));
     assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(1, key));
     expected = new HashSet<>(Arrays.asList(
-        new Node<>(key, new Node<>(key), leaf),
-        new Node<>(key, leaf, new Node<>(key))));
+        new Node<>(key, new Node<>(key), nil),
+        new Node<>(key, nil, new Node<>(key))));
     assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(2, key));
     expected = new HashSet<>(Arrays.asList(
         new Node<>(key, new Node<>(key), new Node<>(key))));
     assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(3, key));
 
-    expected = new HashSet<>(Arrays.asList(new Node<>(key, new Node<>(key, new Node<>(key), leaf), new Node<>(key)),
-        new Node<>(key, new Node<>(key, leaf, new Node<>(key)), new Node<>(key)),
-        new Node<>(key, new Node<>(key), new Node<>(key, new Node<>(key), leaf)),
-        new Node<>(key, new Node<>(key), new Node<>(key, leaf, new Node<>(key)))));
+    expected = new HashSet<>(Arrays.asList(new Node<>(key, new Node<>(key, new Node<>(key), nil), new Node<>(key)),
+        new Node<>(key, new Node<>(key, nil, new Node<>(key)), new Node<>(key)),
+        new Node<>(key, new Node<>(key), new Node<>(key, new Node<>(key), nil)),
+        new Node<>(key, new Node<>(key), new Node<>(key, nil, new Node<>(key)))));
     assertEquals(expected, Tree.allHeightBalancedTreesWithNodes(4, key));
 
     //assertEquals(1553, Tree.allHeightBalancedTreesWithNodes(15, key).size()); 
@@ -355,10 +355,10 @@ public class TreeTest {
   
   @Test
   public void testLeavesCount() {
-    assertEquals(0, leaf.leavesCount());
+    assertEquals(0, nil.leavesCount());
     assertEquals(1, new Node<Integer>(11).leavesCount());
-    assertEquals(1, new Node<Integer>(11, new Node<Integer>(22), leaf).leavesCount());
-    assertEquals(1, new Node<Integer>(11, leaf, new Node<Integer>(22)).leavesCount());
+    assertEquals(1, new Node<Integer>(11, new Node<Integer>(22), nil).leavesCount());
+    assertEquals(1, new Node<Integer>(11, nil, new Node<Integer>(22)).leavesCount());
     assertEquals(2, t1.leavesCount());
     assertEquals(4, new Node<Integer>(0, t1, t1).leavesCount());
   }
@@ -366,7 +366,7 @@ public class TreeTest {
   @Test
   public void testPreOrder() {
     List<Tree<Integer>> expected = Arrays.asList();
-    assertEquals(expected, leaf.preOrder());
+    assertEquals(expected, nil.preOrder());
     
     List<Integer> expectedKeys = Arrays.asList(1, 2, 3, 4, 5);
     assertEquals(expectedKeys, t3.preOrder().stream().map(Tree::key).collect(Collectors.toList()));
@@ -375,7 +375,7 @@ public class TreeTest {
   @Test
   public void testInOrder() {
     List<Tree<Integer>> expected = Arrays.asList();
-    assertEquals(expected, leaf.inOrder());
+    assertEquals(expected, nil.inOrder());
     
     List<Integer> expectedKeys = Arrays.asList(3, 2, 4, 1, 5);
     assertEquals(expectedKeys, t3.inOrder().stream().map(Tree::key).collect(Collectors.toList()));
@@ -384,10 +384,17 @@ public class TreeTest {
   @Test
   public void testPostOrder() {
     List<Tree<Integer>> expected = Arrays.asList();
-    assertEquals(expected, leaf.postOrder());
+    assertEquals(expected, nil.postOrder());
     
     List<Integer> expectedKeys = Arrays.asList(3, 4, 2, 5, 1);
     assertEquals(expectedKeys, t3.postOrder().stream().map(Tree::key).collect(Collectors.toList()));
+  }
+  
+  @Test
+  public void testLeavesKeysList() {
+    Tree<Character> t = new Node<>('a', new Node<>('b'), new Node<>('c', new Node<>('d'), new Node<>('e')));
+    List<Character> expected = Arrays.asList('b', 'd', 'e');
+    assertEquals(expected, t.leavesKeysList());
   }
   
 }

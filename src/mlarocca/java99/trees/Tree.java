@@ -28,7 +28,7 @@ public interface Tree<T extends Comparable<? super T>> {
    */
   public static <R extends Comparable<R>> Tree<R> cBalanced(int n, R key) throws IllegalArgumentException {
     if (n == 0) {
-      return new Leaf<>();
+      return new Nil<>();
     } else if (n == 1) {
       return new Node<>(key);
     } else if (n > 1) {
@@ -60,7 +60,7 @@ public interface Tree<T extends Comparable<? super T>> {
       result = new HashSet<>();
       result.add(node);
     } else if (n == 0) {
-      Tree<R> node = new Leaf<>();
+      Tree<R> node = new Nil<>();
       result = new HashSet<>();
       result.add(node);
     } else {  // n < 0
@@ -88,7 +88,7 @@ public interface Tree<T extends Comparable<? super T>> {
 
   /**
    * Returns all height balanced trees with a given height.
-   * For height == 0, returns a leaf.
+   * For height == 0, returns Nil.
    * 
    * Minimum number of nodes for such trees:
    * | h == 0 -> 0
@@ -124,7 +124,7 @@ public interface Tree<T extends Comparable<? super T>> {
       Tree<R> node = new Node<>(key);
       result.add(node);
     } else if (height == 0) {
-      Tree<R> node = new Leaf<>();
+      Tree<R> node = new Nil<>();
       result.add(node);
     } else {  // n < 0
       throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
@@ -210,7 +210,7 @@ public interface Tree<T extends Comparable<? super T>> {
   
   /**
    * Returns all height balanced trees with a given height.
-   * For height == 0, returns a leaf.
+   * For height == 0, returns Nil.
    * 
    * Minimum number of nodes for such trees:
    * | h == 0 -> 0
@@ -238,7 +238,7 @@ public interface Tree<T extends Comparable<? super T>> {
       result.add(node);
     } else if (n == 0) {
       result = new HashSet<>();
-      Tree<R> node = new Leaf<>();
+      Tree<R> node = new Nil<>();
       result.add(node);
     } else {  // n < 0
       throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
@@ -248,10 +248,10 @@ public interface Tree<T extends Comparable<? super T>> {
 
   // INSTANCE METHODS
   
-  public boolean isLeaf();
+  public boolean isNil();
   
   public default boolean isNode() {
-    return !isLeaf();
+    return !isNil();
   }
 
   public int size();
@@ -269,12 +269,15 @@ public interface Tree<T extends Comparable<? super T>> {
 
   public boolean hasSymmetricStructure();
   
-  public boolean isLeafNode();
-  public int leavesCount();
-  
   public List<Tree<T>> preOrder();
   public List<Tree<T>> postOrder();
   public List<Tree<T>> inOrder();
+
+  public boolean isLeafNode();
+  public int leavesCount();
+  public List<Tree<T>> leavesList();
+  public List<T> leavesKeysList();
+  
 }
 
 
@@ -289,7 +292,7 @@ interface TreeInternal<T extends Comparable<? super T>> extends Tree<T> {
     while (!stack1.isEmpty()) {
       Tree<R> tree1 = stack1.pop();
       Tree<R> tree2 = stack2.pop();
-      if (tree1.isLeaf() != tree2.isLeaf()) {
+      if (tree1.isNil() != tree2.isNil()) {
         return false;
       }
       if (tree1.isNode()) {

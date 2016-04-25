@@ -3,6 +3,7 @@ package mlarocca.java99.trees;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
 
@@ -17,8 +18,8 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
       throw new NullPointerException("key");
     }
     _key = key;
-    _left = new Leaf<>();
-    _right = new Leaf<>();
+    _left = new Nil<>();
+    _right = new Nil<>();
   }
 
   public Node(T key, Tree<T> left, Tree<T> right) {
@@ -55,7 +56,7 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   }
   
   @Override
-  public boolean isLeaf() throws UnsupportedOperationException {
+  public boolean isNil() throws UnsupportedOperationException {
     return false;
   }
   
@@ -99,7 +100,7 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   
   @Override
   public boolean isLeafNode() {
-    return left().isLeaf() && right().isLeaf();
+    return left().isNil() && right().isNil();
   }
   
   @Override
@@ -131,4 +132,15 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
     result.addAll(right().inOrder());
     return result;
   }
+
+  @Override
+  public List<Tree<T>> leavesList() {
+    return preOrder().stream().filter(n -> n.isLeafNode()).collect(Collectors.toList());
+  }
+  
+  @Override
+  public List<T> leavesKeysList() {
+    return leavesList().stream().map(Tree::key).collect(Collectors.toList());
+  }
+
 }

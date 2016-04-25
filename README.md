@@ -9,6 +9,11 @@
 * P56 Symmetric binary trees. [tree.hasSymmetricStructure()]
 * P57 Binary search trees (dictionaries). [BinarySearchTree]
 * P58 Generate-and-test paradigm. [Tree.allSymmetricBalancedTrees()]
+* P59 Construct height-balanced binary trees. [Tree.allHeightBalanced()]]
+* P60 Construct height-balanced binary trees with a given number of nodes. [Tree.minHbalNodes(), Tree.maxHbalHeight(), Tree.allHeightBalancedWithNodes()]
+* P61 Count the leaves of a binary tree. [tree.leavesCount()]
+* P61A Collect the leaves of a binary tree in a list. [tree.leavesList(), tree.leavesKeysList()]
+
 
 ## Graphs
 

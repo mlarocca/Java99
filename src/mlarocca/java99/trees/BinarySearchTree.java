@@ -9,7 +9,7 @@ public interface BinarySearchTree<T extends Comparable<? super T>> extends Tree<
   public BinarySearchTree<T> right() throws UnsupportedOperationException;
   
   public static <R extends Comparable<? super R>> BinarySearchTree<R> fromList(Iterable<R> list) {
-    BinarySearchTree<R> tree = new BinarySearchLeaf<R>();
+    BinarySearchTree<R> tree = new BinarySearchNil<R>();
     for (R key: list) {
       tree = tree.addKey(key);
     }
