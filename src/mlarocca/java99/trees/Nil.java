@@ -100,4 +100,21 @@ class Nil<T extends Comparable<? super T>> implements TreeInternal<T> {
   public List<T> internalNodesKeysList() {
     return new ArrayList<>();
   }
+  
+  @Override
+  public List<Tree<T>> nodesAtHeight(int h) throws IllegalArgumentException {
+    if (h < 0) {
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
+    }
+    return new ArrayList<>();
+  }
+
+  @Override
+  public List<T> nodesKeysAtHeight(int h) throws IllegalArgumentException {
+    if (h < 0) {
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
+    }
+    return new ArrayList<>();
+  }
+
 }

@@ -406,5 +406,32 @@ public class TreeTest {
     Tree<Character> t = new Node<>('a', new Node<>('b'), new Node<>('c', new Node<>('d'), new Node<>('e')));
     List<Character> expected = Arrays.asList('a', 'c');
     assertEquals(expected, t.internalNodesKeysList());
+  }
+  
+  @Test
+  public void testNodesKeysAtLevel() {
+    List<Integer> expected = Arrays.asList();
+    assertEquals(Arrays.asList(), nil.nodesAtHeight(0));
+    assertEquals(Arrays.asList(), nil.nodesAtHeight(1));
+    assertEquals(Arrays.asList(), nil.nodesAtHeight(2));
+
+    Tree<Integer> t = new Node<Integer>(0, t1, t1);
+    expected = Arrays.asList(0);
+    assertEquals(expected, t.nodesKeysAtHeight(0));
+    
+    expected = Arrays.asList(1, 1);
+    assertEquals(expected, t.nodesKeysAtHeight(1));
+    
+    expected = Arrays.asList(2, 3, 2, 3);
+    assertEquals(expected, t.nodesKeysAtHeight(2));
+
+    expected = Arrays.asList();
+    assertEquals(expected, t.nodesKeysAtHeight(3));
   }  
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNodesKeysAtLevelFailure() {
+    t1.nodesAtHeight(-1);
+  }  
+
 }

@@ -152,5 +152,25 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   @Override
   public List<T> internalNodesKeysList() {
     return internalNodesList().stream().map(Tree::key).collect(Collectors.toList());
-  }  
+  }
+  
+  @Override
+  public List<Tree<T>> nodesAtHeight(int h) throws IllegalArgumentException {
+    List<Tree<T>> result = null;
+    if (h > 0) {
+      result = left().nodesAtHeight(h - 1);
+      result.addAll(right().nodesAtHeight(h - 1));
+    } else if (h == 0) {
+      result = new ArrayList<>();
+      result.add(this);
+    } if (h < 0) {
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
+    }
+    return result;
+  }
+  
+  @Override
+  public List<T> nodesKeysAtHeight(int h) throws IllegalArgumentException {
+    return nodesAtHeight(h).stream().map(Tree::key).collect(Collectors.toList());
+  }
 }

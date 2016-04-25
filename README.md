@@ -13,7 +13,8 @@
 * P60 Construct height-balanced binary trees with a given number of nodes. [Tree.minHbalNodes(), Tree.maxHbalHeight(), Tree.allHeightBalancedWithNodes()]
 * P61 Count the leaves of a binary tree. [tree.leavesCount()]
 * P61A Collect the leaves of a binary tree in a list. [tree.leavesList(), tree.leavesKeysList()]
-
+* P62A Collect the internal nodes of a binary tree in a list. [tree.internalNodesList(), tree.internalNodesList()]
+* P62B Collect the nodes at a given level in a list. [tree.nodesAtHeight(), tree.nodesKeysAtHeight()]
 
 ## Graphs
 

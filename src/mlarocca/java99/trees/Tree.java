@@ -280,6 +280,29 @@ public interface Tree<T extends Comparable<? super T>> {
   public List<Tree<T>> internalNodesList();
   public List<T> internalNodesKeysList();
   
+  /**
+   * Return all the nodes at a given height. Root is considered at height 0.
+   * If the tree has height lower than h, returns an empty list.
+   * If h is negative, an error is thrown.
+   * Nodes are returned in order, as the appear in the tree, left to right.
+   * 
+   * @param h The desired height.
+   * @return A list of nodes satisfying the constraint.
+   * @throws IllegalArgumentException If an invalid height is passed.
+   */
+  public List<Tree<T>> nodesAtHeight(int h) throws IllegalArgumentException;
+
+  /**
+   * Return all the keys at a given height. Root is considered at height 0.
+   * If the tree has height lower than h, returns an empty list.
+   * If h is negative, an error is thrown.
+   * Keys are returned in order, as the appear in the tree, left to right.
+   * 
+   * @param h The desired height.
+   * @return A list of nodes satisfying the constraint.
+   * @throws IllegalArgumentException If an invalid height is passed.
+   */
+  public List<T> nodesKeysAtHeight(int h) throws IllegalArgumentException;
 }
 
 
