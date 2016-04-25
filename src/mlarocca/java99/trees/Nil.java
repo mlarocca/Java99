@@ -89,4 +89,15 @@ class Nil<T extends Comparable<? super T>> implements TreeInternal<T> {
   public List<T> leavesKeysList() {
     return new ArrayList<>();
   }
+  
+
+  @Override
+  public List<Tree<T>> internalNodesList() {
+    return new ArrayList<>();
+  }
+  
+  @Override
+  public List<T> internalNodesKeysList() {
+    return new ArrayList<>();
+  }
 }

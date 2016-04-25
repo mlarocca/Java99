@@ -392,9 +392,19 @@ public class TreeTest {
   
   @Test
   public void testLeavesKeysList() {
+    assertEquals(Arrays.asList(), nil.leavesList());
+    
     Tree<Character> t = new Node<>('a', new Node<>('b'), new Node<>('c', new Node<>('d'), new Node<>('e')));
     List<Character> expected = Arrays.asList('b', 'd', 'e');
     assertEquals(expected, t.leavesKeysList());
   }
   
+  @Test
+  public void testInternalNodesKeysList() {
+    assertEquals(Arrays.asList(), nil.internalNodesList());
+
+    Tree<Character> t = new Node<>('a', new Node<>('b'), new Node<>('c', new Node<>('d'), new Node<>('e')));
+    List<Character> expected = Arrays.asList('a', 'c');
+    assertEquals(expected, t.internalNodesKeysList());
+  }  
 }

@@ -277,6 +277,8 @@ public interface Tree<T extends Comparable<? super T>> {
   public int leavesCount();
   public List<Tree<T>> leavesList();
   public List<T> leavesKeysList();
+  public List<Tree<T>> internalNodesList();
+  public List<T> internalNodesKeysList();
   
 }
 

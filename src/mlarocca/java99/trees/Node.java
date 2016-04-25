@@ -143,4 +143,14 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
     return leavesList().stream().map(Tree::key).collect(Collectors.toList());
   }
 
+
+  @Override
+  public List<Tree<T>> internalNodesList() {
+    return preOrder().stream().filter(n -> !n.isLeafNode()).collect(Collectors.toList());
+  }
+  
+  @Override
+  public List<T> internalNodesKeysList() {
+    return internalNodesList().stream().map(Tree::key).collect(Collectors.toList());
+  }  
 }
