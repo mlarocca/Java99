@@ -245,6 +245,25 @@ public interface Tree<T extends Comparable<? super T>> {
     }
     return result;
   }
+  
+  public static <R extends Comparable<? super R>> Tree<R> completeBinaryTree(int n, R key) {
+    Tree<R> result;
+    if (n > 2) {
+      int m = (n - 1) / 2;
+      int h = (int) Math.floor(Math.log(m) / Math.log(2));
+      m = (int) Math.pow(2, h);
+      result = new Node<R>(key, completeBinaryTree(n - 1 - m, key), completeBinaryTree(m, key));
+    } else if (n == 2) {
+      result = new Node<R>(key, new Node<R>(key), new Nil<>());      
+    } else if (n == 1) {
+      result = new Node<R>(key);
+    } else if (n == 0) {
+      result = new Nil<R>();
+    } else {
+      throw new IllegalArgumentException(TreeInternal.NEGATIVE_NUMER_OF_NODES_MESSAGE);
+    }
+    return result;
+  }
 
   // INSTANCE METHODS
   

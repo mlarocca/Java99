@@ -156,14 +156,14 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   
   @Override
   public List<Tree<T>> nodesAtHeight(int h) throws IllegalArgumentException {
-    List<Tree<T>> result = null;
+    List<Tree<T>> result;
     if (h > 0) {
       result = left().nodesAtHeight(h - 1);
       result.addAll(right().nodesAtHeight(h - 1));
     } else if (h == 0) {
       result = new ArrayList<>();
       result.add(this);
-    } if (h < 0) {
+    } else {
       throw new IllegalArgumentException(TreeInternal.NEGATIVE_HEIGHT_MESSAGE);
     }
     return result;
