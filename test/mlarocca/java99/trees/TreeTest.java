@@ -432,6 +432,43 @@ public class TreeTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNodesKeysAtLevelFailure() {
     t1.nodesAtHeight(-1);
-  }  
+  }
 
+  @Test
+  public void completeBinaryTree() {
+    Tree<Integer> expected;
+    Integer key = 1;
+    
+    expected = nil;
+    assertEquals(expected, Tree.completeBinaryTree(0, key));
+    
+    expected = new Node<>(key);
+    assertEquals(expected, Tree.completeBinaryTree(1, key));
+    
+    expected = new Node<>(key, new Node<>(key), nil);
+    assertEquals(expected, Tree.completeBinaryTree(2, key));
+
+    expected = new Node<>(key, new Node<>(key), new Node<>(key));
+    assertEquals(expected, Tree.completeBinaryTree(3, key));
+
+    expected = new Node<>(key, new Node<>(key, new Node<>(key), nil), new Node<>(key));
+    assertEquals(expected, Tree.completeBinaryTree(4, key));
+
+    expected = new Node<>(key, new Node<>(key, new Node<>(key), new Node<>(key)), new Node<>(key));
+    assertEquals(expected, Tree.completeBinaryTree(5, key));
+
+    expected = new Node<>(key, new Node<>(key, new Node<>(key), new Node<>(key)), new Node<>(key, new Node<>(key), nil));
+    assertEquals(expected, Tree.completeBinaryTree(6, key));
+
+    expected = new Node<>(key, new Node<>(key, new Node<>(key), new Node<>(key)), new Node<>(key, new Node<>(key), new Node<>(key)));
+    assertEquals(expected, Tree.completeBinaryTree(7, key));
+
+    expected = new Node<>(key, new Node<>(key, new Node<>(key, new Node<>(key), new Node<>(key)), new Node<>(key, new Node<>(key), nil)), new Node<>(key, new Node<>(key), new Node<>(key)));
+    assertEquals(expected, Tree.completeBinaryTree(10, key));
+  }
+  
+  @Test(expected = IllegalArgumentException.class) 
+  public void completeBinaryTreeFailure() {
+    Tree.completeBinaryTree(-10, "xyz");
+  }
 }

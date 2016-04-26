@@ -246,15 +246,39 @@ public interface Tree<T extends Comparable<? super T>> {
     return result;
   }
   
-  public static <R extends Comparable<? super R>> Tree<R> completeBinaryTree(int n, R key) {
+  /**
+   * Return a complete binary tree with n nodes.
+   * Properties of complete binary trees:
+   * 
+   * For every node either:
+   * 1. The node is a leaf or
+   * 2a. The right branch of the node is a complete (possibly empty) tree, with height hr,
+   *    where the height of the left branch is hr <= hl <= hr + 1.
+   * 2b. The left branch of the node is itself a complete binary tree.
+   *
+   * @param n The number of nodes that the tree must hold.
+   * @param key The key 
+   * @return The tree created
+   * @throws IllegalArgumentException if n < 0.
+   */
+  public static <R extends Comparable<? super R>> Tree<R> completeBinaryTree(
+      int n,
+      R key) throws IllegalArgumentException {
     Tree<R> result;
-    if (n > 2) {
-      int m = (n - 1) / 2;
-      int h = (int) Math.floor(Math.log(m) / Math.log(2));
-      m = (int) Math.pow(2, h);
-      result = new Node<R>(key, completeBinaryTree(n - 1 - m, key), completeBinaryTree(m, key));
-    } else if (n == 2) {
-      result = new Node<R>(key, new Node<R>(key), new Nil<>());      
+    if (n > 1) {
+      //Height of the tree with n nodes
+      int h = (int) Math.floor(Math.log(n + 1) / Math.log(2));
+      //Number of nodes in subtrees of height h - 2
+      int totalNodesCompleteSubtree = (int) Math.pow(2, h - 1) - 1;
+      //Number of leaves in subtrees of height h - 1
+      int leavesCompleteSubtree = (int) Math.pow(2, h - 1); 
+      //Number of nodes in this tree at height h
+      int k = n - 1 - 2 * totalNodesCompleteSubtree;
+      //Number of leaves at level h in the left subtree
+      int leavesAtHeightHLeft = Math.min(k, leavesCompleteSubtree);
+      //Number of leaves at level h in the right subtree
+      int leavesAtHeightHRight = Math.max(k - leavesCompleteSubtree, 0);
+      result = new Node<R>(key, completeBinaryTree(totalNodesCompleteSubtree + leavesAtHeightHLeft, key), completeBinaryTree(totalNodesCompleteSubtree + leavesAtHeightHRight, key));
     } else if (n == 1) {
       result = new Node<R>(key);
     } else if (n == 0) {
