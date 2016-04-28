@@ -579,6 +579,66 @@ public class SimpleGraph<T> implements GraphInternal<T> {
   public MinDistanceResult<T> bfs(Vertex<T> source) {
     return AStar(source, v -> false, e -> 1.0, v -> 0.0);
   }
+
+  public MinDistanceResult<T> bfsSimple(Vertex<T> source) {
+    final Map<Vertex<T>, Double> distances = new HashMap<>(this.size());
+    Map<Vertex<T>, Vertex<T>> predecessors = new HashMap<>(this.size());
+    Set<Vertex<T>> visited = new HashSet<>(this.size());
+    
+    
+    Queue<Vertex<T>> queue = new PriorityQueue<>(new Comparator<Vertex<T>>() {
+      @Override
+      public int compare(Vertex<T> v1, Vertex<T> v2) {
+        return (int)(distances.getOrDefault(v1, Double.POSITIVE_INFINITY) - distances.getOrDefault(v2, Double.POSITIVE_INFINITY));
+      }
+    });
+
+    initBfs(distances, predecessors, visited, queue, source);
+    
+    while (!queue.isEmpty()) {
+      Vertex<T> v = queue.remove();
+      if (visited.contains(v)) {
+        continue;
+      }
+      visited.add(v);
+      for (Vertex<T> u : getNeighbours(v)) {
+        if (!visited.contains(u) && distances.getOrDefault(u, Double.POSITIVE_INFINITY) > (distances.get(v) + 1)) {
+          distances.put(u, distances.get(v) + 1.0);
+          predecessors.put(u,  v);
+          queue.add(u);
+        }
+      }
+    }
+    
+    return new MinDistanceResult<T>() {
+      @Override
+      public Map<Vertex<T>, Vertex<T>> predecessors() {
+        return predecessors;
+      }
+
+      @Override
+      public Map<Vertex<T>, Double> distances() {
+        return distances;
+      }
+
+      @Override
+      public List<Vertex<T>> path() {
+        return null;
+      }
+    };
+  }
+
+  private void initBfs(
+      Map<Vertex<T>, Double> distances, 
+      Map<Vertex<T>, Vertex<T>>predecessors, 
+      Set<Vertex<T>> visited, 
+      Queue<Vertex<T>> queue, 
+      Vertex<T> source) {
+    predecessors.put(source, null);
+    distances.put(source, 0.0);
+    queue.add(source);
+  }
+
   
   /**
    * 

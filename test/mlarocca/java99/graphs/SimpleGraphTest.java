@@ -741,7 +741,48 @@ public class SimpleGraphTest {
     assertEquals(null, result.predecessors().get(f));
     assertEquals(null, result.predecessors().get(i));
   }
-  
+
+  @Test
+  public void testBfsSimpleFromVertex() {
+    MinDistanceResult<String> result = ((SimpleGraph<String>)connectedGraph1).bfsSimple(c);
+    
+    assertEquals((Double)0.0, result.distances().get(c));  
+    assertEquals((Double)1.0, result.distances().get(a));  
+    assertEquals((Double)1.0, result.distances().get(b));  
+    assertEquals((Double)1.0, result.distances().get(d));  
+    assertEquals((Double)1.0, result.distances().get(h));  
+    assertEquals((Double)2.0, result.distances().get(e));  
+    assertEquals((Double)2.0, result.distances().get(f));
+    assertEquals((Double)2.0, result.distances().get(i));
+    
+    assertEquals(null, result.predecessors().get(c));  
+    assertEquals(c, result.predecessors().get(a));  
+    assertEquals(c, result.predecessors().get(b));  
+    assertEquals(c, result.predecessors().get(d));  
+    assertEquals(c, result.predecessors().get(h));  
+    assertEquals(d, result.predecessors().get(e));  
+    assertEquals(d, result.predecessors().get(f));
+    assertEquals(h, result.predecessors().get(i));
+    
+    result = ((SimpleGraph<String>)connectedGraph1).bfsSimple(a);
+    assertEquals((Double)0.0, result.distances().get(a));  
+    assertEquals(null, result.distances().get(b));  
+    assertEquals(null, result.distances().get(d));  
+    assertEquals(null, result.distances().get(h));  
+    assertEquals(null, result.distances().get(e));  
+    assertEquals(null, result.distances().get(f));
+    assertEquals(null, result.distances().get(i));
+    
+    assertEquals(null, result.predecessors().get(c));  
+    assertEquals(null, result.predecessors().get(a));  
+    assertEquals(null, result.predecessors().get(b));  
+    assertEquals(null, result.predecessors().get(d));  
+    assertEquals(null, result.predecessors().get(h));  
+    assertEquals(null, result.predecessors().get(e));  
+    assertEquals(null, result.predecessors().get(f));
+    assertEquals(null, result.predecessors().get(i));
+  }
+
   @Test
   public void testBfsFromVertexCycle() {
     MinDistanceResult<Integer> result = cycleGraph.bfs(u);
