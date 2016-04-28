@@ -346,6 +346,8 @@ public interface Tree<T extends Comparable<? super T>> {
    * @throws IllegalArgumentException If an invalid height is passed.
    */
   public List<T> nodesKeysAtHeight(int h) throws IllegalArgumentException;
+  
+  public LayoutBinaryTree<T> layoutBinaryTree();
 }
 
 

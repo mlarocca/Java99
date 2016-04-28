@@ -435,7 +435,7 @@ public class TreeTest {
   }
 
   @Test
-  public void completeBinaryTree() {
+  public void testCompleteBinaryTree() {
     Tree<Integer> expected;
     Integer key = 1;
     
@@ -468,7 +468,61 @@ public class TreeTest {
   }
   
   @Test(expected = IllegalArgumentException.class) 
-  public void completeBinaryTreeFailure() {
+  public void testCompleteBinaryTreeFailure() {
     Tree.completeBinaryTree(-10, "xyz");
+  }
+  
+  @Test
+  public void testLayoutBinaryTree() {
+    assertEquals(nil.layoutBinaryTree(), new LayoutBinaryNil<>());
+    assertNotEquals(t1.layoutBinaryTree(), new LayoutBinaryNil<>());
+
+    LayoutBinaryNil<Integer> lbnil = new LayoutBinaryNil<>();
+    LayoutBinaryTree<Integer> expected = new LayoutBinaryNode<>(
+      t1.key(), 
+      new LayoutBinaryNode<Integer>(t1.left().key(), lbnil, lbnil, 1, 2),
+      new LayoutBinaryNode<Integer>(t1.right().key(), lbnil, lbnil, 3, 2),
+      2,
+      1);
+    
+    assertEquals(expected, t1.layoutBinaryTree());
+    
+    BinarySearchTree<Character> t = BinarySearchTree.fromList(Arrays.asList('n','k','m','c','a','h','g','e','u','p','s','q'));
+    
+    LayoutBinaryNil<Character> lbnilC = new LayoutBinaryNil<>();
+    LayoutBinaryTree<Character> expectedC = new LayoutBinaryNode<>(
+        'n', 
+        new LayoutBinaryNode<Character>('k', 
+            new LayoutBinaryNode<Character>('c',
+              new LayoutBinaryNode<Character>('a', lbnilC, lbnilC, 1, 4),
+              new LayoutBinaryNode<Character>('h',
+                new LayoutBinaryNode<Character>('g',
+                  new LayoutBinaryNode<Character>('e', lbnilC, lbnilC, 3, 6),
+                  lbnilC,
+                  4,
+                  5),
+                lbnilC,
+                5,
+                4),
+              2, 3),
+            new LayoutBinaryNode<Character>('m', lbnilC, lbnilC, 7, 3),
+            6, 2),
+        new LayoutBinaryNode<Character>('u',
+          new LayoutBinaryNode<Character>('p',
+            lbnilC,
+            new LayoutBinaryNode<Character>('s',
+              new LayoutBinaryNode<Character>('q',lbnilC, lbnilC, 10, 5),
+              lbnilC,
+              11,
+              4),
+            9,
+            3),
+          lbnilC,
+          12,
+          2),
+        8,
+        1);
+    
+    assertEquals(expectedC, t.layoutBinaryTree());
   }
 }

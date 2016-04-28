@@ -173,4 +173,19 @@ public class Node<T extends Comparable<? super T>> implements TreeInternal<T> {
   public List<T> nodesKeysAtHeight(int h) throws IllegalArgumentException {
     return nodesAtHeight(h).stream().map(Tree::key).collect(Collectors.toList());
   }
+
+  @Override
+  public LayoutBinaryTree<T> layoutBinaryTree() {
+    return layoutBinaryTree(0, 0);
+  }
+  
+  private LayoutBinaryTree<T> layoutBinaryTree(int x, int y) {
+    int nodeX = x + left().size() + 1;
+    LayoutBinaryTree<T> leftLT;
+    LayoutBinaryTree<T> rightLT;
+    leftLT = left().isNil() ? new LayoutBinaryNil<>() : ((Node<T>)left()).layoutBinaryTree(x, y + 1);
+    rightLT = right().isNil() ? new LayoutBinaryNil<>() : ((Node<T>)right()).layoutBinaryTree(nodeX, y + 1);
+    return new LayoutBinaryNode<T>(key(), leftLT, rightLT, nodeX, y + 1);
+  }
+
 }

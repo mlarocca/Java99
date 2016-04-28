@@ -117,4 +117,9 @@ class Nil<T extends Comparable<? super T>> implements TreeInternal<T> {
     return new ArrayList<>();
   }
 
+  @Override
+  public LayoutBinaryTree<T> layoutBinaryTree() {
+    return new LayoutBinaryNil<>();
+  }
+
 }

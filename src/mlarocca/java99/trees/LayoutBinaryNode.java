@@ -5,29 +5,29 @@ public class LayoutBinaryNode<T extends Comparable<? super T>> extends Node<T> i
   private int _y;
   
   public LayoutBinaryNode(T key) throws NullPointerException {
-    super(key, new BinarySearchNil<T>(), new BinarySearchNil<T>());
+    super(key, new LayoutBinaryNil<T>(), new LayoutBinaryNil<T>());
     _x = _y = 0;
   }
 
-  private LayoutBinaryNode(T key, LayoutBinaryNode<T> left, LayoutBinaryNode<T> right) throws NullPointerException {
+  public LayoutBinaryNode(T key, LayoutBinaryTree<T> left, LayoutBinaryTree<T> right) throws NullPointerException {
     super(key, left, right);
     _x = _y = 0;
   }
 
-  private LayoutBinaryNode(T key, LayoutBinaryNode<T> left, LayoutBinaryNode<T> right, int x, int y) throws NullPointerException {
+  public LayoutBinaryNode(T key, LayoutBinaryTree<T> left, LayoutBinaryTree<T> right, int x, int y) throws NullPointerException {
     super(key, left, right);
     _x = x;
     _y = y;
   }
 
   @Override
-  public LayoutBinaryNode<T> left() throws UnsupportedOperationException {
-    return (LayoutBinaryNode<T>)super.left();
+  public LayoutBinaryTree<T> left() throws UnsupportedOperationException {
+    return (LayoutBinaryTree<T>)super.left();
   }
 
   @Override
-  public LayoutBinaryNode<T> right() throws UnsupportedOperationException {
-    return (LayoutBinaryNode<T>)super.right();
+  public LayoutBinaryTree<T> right() throws UnsupportedOperationException {
+    return (LayoutBinaryTree<T>)super.right();
   }
 
   @Override
@@ -38,6 +38,16 @@ public class LayoutBinaryNode<T extends Comparable<? super T>> extends Node<T> i
   @Override
   public int y() {
     return _y;
+  }
+
+  @Override
+  public int hashCode() {
+    return String.format("%d[%s]%d,%d@(%d,%d)", key().hashCode(), this.getClass(), left().hashCode(), right().hashCode(), x(), y()).hashCode();
+  }
+  
+  @Override
+  public String toString() {
+    return String.format("%s@[x=%d,y=%d]", super.toString(), x(), y());
   }
 
 }
