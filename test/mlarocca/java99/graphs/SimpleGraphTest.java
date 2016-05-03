@@ -741,7 +741,7 @@ public class SimpleGraphTest {
     assertEquals(null, result.predecessors().get(f));
     assertEquals(null, result.predecessors().get(i));
   }
-  
+
   @Test
   public void testBfsFromVertexCycle() {
     MinDistanceResult<Integer> result = cycleGraph.bfs(u);
